@@ -1,0 +1,1025 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E4B37">
+<meta name="robots" content="noindex,nofollow">
+<meta name="format-detection" content="telephone=no">
+<title>ゴルフコンペ LIVE順位速報</title>
+<style>
+:root{
+  --green:#0E4B37; --green2:#17694E; --green-soft:#E9F2ED; --green-line:#C9DDD3;
+  --gold:#A9853A; --gold-soft:#F6EFDD;
+  --ink:#1B2220; --muted:#5C6964; --line:#E1E6E3; --bg:#FFFFFF; --bg2:#F5F7F6;
+  --red:#B3261E; --red-soft:#FCEDEB; --amber:#8A5A00; --amber-soft:#FFF4D6;
+  --sab: env(safe-area-inset-bottom, 0px); --sat: env(safe-area-inset-top, 0px);
+  --sal: env(safe-area-inset-left, 0px); --sar: env(safe-area-inset-right, 0px);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Noto Sans CJK JP","Yu Gothic",Meiryo,sans-serif;
+  font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{touch-action:manipulation;cursor:pointer;-webkit-tap-highlight-color:transparent}
+a{color:var(--green2)}
+.wrap{max-width:560px;margin:0 auto;padding:0 max(16px,var(--sar)) 0 max(16px,var(--sal))}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+
+/* ---- header ---- */
+.bar{background:var(--green);color:#fff;padding:calc(12px + var(--sat)) 0 12px}
+.bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.bar-t{font-size:18px;font-weight:700;line-height:1.3;word-break:break-word}
+.bar-s{font-size:13px;opacity:.85;margin-top:2px;word-break:break-word}
+.bar-link{flex:none;color:#fff;text-decoration:none;font-size:14px;font-weight:600;border:1px solid rgba(255,255,255,.55);border-radius:999px;padding:8px 14px;white-space:nowrap}
+.goldline{height:3px;background:var(--gold)}
+.demo{background:var(--gold-soft);color:#5E4712;font-size:13px;padding:8px 0;border-bottom:1px solid #E6D7AE}
+.offline{background:var(--amber-soft);color:var(--amber);font-size:14px;font-weight:600;padding:8px 0;border-bottom:1px solid #EBD592}
+
+/* ---- common ---- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:8px 16px;border-radius:10px;border:1px solid var(--green-line);background:#fff;color:var(--green);font-weight:600;font-size:15px;text-decoration:none}
+.btn:active{background:var(--green-soft)}
+.btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+.btn.primary:active{background:var(--green2)}
+.btn.block{display:flex;width:100%}
+.btn.big{min-height:60px;font-size:20px;border-radius:14px}
+.btn.line{background:#06C755;border-color:#06C755;color:#fff}
+.btn.danger{color:var(--red);border-color:#E8C4C0}
+.btn[disabled]{opacity:.45;cursor:default}
+.card{border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0;background:#fff}
+.card h2{margin:0 0 10px;font-size:17px;color:var(--green)}
+.card h3{margin:0 0 6px;font-size:15px}
+.hint{font-size:13px;color:var(--muted);margin:4px 0 0}
+.field{margin:12px 0}
+.field label{display:block;font-size:14px;font-weight:600;margin-bottom:4px}
+.inp{width:100%;min-height:46px;border:1px solid #C5CECA;border-radius:10px;padding:8px 12px;background:#fff;font-size:16px}
+textarea.inp{min-height:180px;line-height:1.6}
+.inp:focus,.sinput:focus,select:focus{outline:2px solid var(--green2);outline-offset:1px}
+.msg{border-radius:12px;padding:12px 14px;margin:12px 0;font-size:15px;font-weight:600}
+.msg.ok{background:var(--green-soft);color:var(--green);border:1px solid var(--green-line)}
+.msg.warn{background:var(--amber-soft);color:var(--amber);border:1px solid #EBD592}
+.msg.err{background:var(--red-soft);color:var(--red);border:1px solid #EFC6C2}
+.msg small{display:block;font-weight:400;margin-top:4px;font-size:13px}
+.center{text-align:center}
+.pad{padding:28px 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.grow{flex:1 1 auto;min-width:0}
+
+/* ---- leaderboard ---- */
+.livehead{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 0 4px}
+.live{display:flex;align-items:center;gap:8px;font-size:19px;font-weight:800;color:var(--green);letter-spacing:.02em}
+.dot{width:10px;height:10px;border-radius:50%;background:#1DA35F;flex:none}
+.dot.off{background:#B6BEBB}
+.badge{flex:none;font-size:13px;font-weight:700;border-radius:999px;padding:4px 12px;border:1.5px solid var(--gold);color:#7A5E1E;background:var(--gold-soft);white-space:nowrap}
+.badge.final{background:var(--green);border-color:var(--green);color:#fff}
+.note{font-size:13px;color:var(--muted);margin:2px 0 10px}
+.tabs{display:flex;gap:6px;margin:10px 0}
+.tabs button{flex:1;min-height:44px;border-radius:10px;border:1px solid var(--green-line);background:#fff;color:var(--green);font-weight:700;font-size:14px;padding:6px 4px}
+.tabs button.on{background:var(--green);border-color:var(--green);color:#fff}
+.lb{border-top:2px solid var(--green);margin:0 0 6px}
+.lbh,.lbr{display:grid;grid-template-columns:58px minmax(0,1fr) 62px 78px;align-items:center;column-gap:6px}
+.lbh{font-size:12px;color:var(--muted);padding:6px 0;border-bottom:1px solid var(--line)}
+.lbh span:nth-child(3),.lbh span:nth-child(4){text-align:right}
+.lbr{padding:10px 0;border-bottom:1px solid var(--line);min-height:58px}
+.rk{display:inline-flex;align-items:center;justify-content:center;min-width:50px;height:34px;border-radius:999px;font-weight:800;font-size:17px;color:var(--ink)}
+.rk small{font-size:12px;font-weight:700;margin-left:1px}
+.rk.r1{background:var(--gold);color:#fff}
+.rk.r2{background:#8E9794;color:#fff}
+.rk.r3{background:#A8724C;color:#fff}
+.rk.none{color:#A3ACA8;font-weight:600}
+.pn{font-size:18px;font-weight:700;line-height:1.3;word-break:break-word}
+.top .pn{font-size:19px}
+.pg{font-size:12px;color:var(--muted);font-weight:500}
+.sc{text-align:right;font-size:24px;font-weight:800;line-height:1.1}
+.sc.under{color:var(--red)} .sc.even{color:var(--green2)} .sc.over{color:var(--ink)}
+.sc small{display:block;font-size:12px;font-weight:600;color:var(--muted)}
+.hl{text-align:right;font-size:13px;color:var(--muted);font-weight:600;line-height:1.3}
+.hl b{font-size:16px;color:var(--ink)}
+.hl.fin{color:var(--green2)}
+.lbr.wait .pn{font-weight:500;color:var(--muted)}
+.sect{font-size:13px;font-weight:700;color:var(--muted);background:var(--bg2);padding:6px 10px;border-radius:8px;margin:14px 0 0}
+.foot{font-size:13px;color:var(--muted);text-align:center;padding:14px 0 calc(28px + var(--sab))}
+.foot b{color:var(--ink)}
+.backrep{position:sticky;bottom:0;background:linear-gradient(rgba(255,255,255,0),#fff 30%);padding:18px 0 calc(12px + var(--sab))}
+
+/* ---- score input ---- */
+.rep{padding-bottom:calc(290px + var(--sab))}
+.holehead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:14px 0 10px;background:var(--green-soft);border:1px solid var(--green-line);border-radius:16px;padding:10px}
+.navb{flex:none;width:56px;height:64px;border-radius:12px;border:1px solid var(--green-line);background:#fff;color:var(--green);font-size:30px;font-weight:700;line-height:1}
+.navb[disabled]{opacity:.3}
+.hinfo{text-align:center}
+.hno{font-size:40px;font-weight:800;color:var(--green);line-height:1.05}
+.hno small{font-size:18px;font-weight:700;margin-left:2px}
+.hpar{font-size:20px;font-weight:800;color:#7A5E1E;letter-spacing:.04em}
+.hedit{font-size:12px;font-weight:700;color:var(--amber)}
+.srow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.sname{font-size:20px;font-weight:700;min-width:0;word-break:break-word;line-height:1.3}
+.stepper{flex:none;display:flex;align-items:center;gap:8px}
+.stb{width:60px;height:60px;border-radius:14px;border:2px solid var(--green);background:#fff;color:var(--green);font-size:34px;font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
+.stb:active{background:var(--green);color:#fff}
+.sinput{width:70px;height:60px;border-radius:14px;border:2px solid #C5CECA;background:#fff;text-align:center;font-size:36px;font-weight:800;padding:0}
+.sinput.empty{border-style:dashed;color:#A3ACA8}
+.sinput::placeholder{color:#B6BEBB;font-weight:500}
+.striplabel{font-size:12px;color:var(--muted);margin:16px 0 6px}
+.strip{display:grid;grid-template-columns:repeat(9,1fr);gap:5px}
+.chip{height:38px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--muted);font-size:14px;font-weight:700;padding:0;position:relative}
+.chip.done{background:var(--green);border-color:var(--green);color:#fff}
+.chip.part{border:2px solid #D9A400;color:var(--amber);background:var(--amber-soft)}
+.chip.pend{background:#D9A400;border-color:#D9A400;color:#fff}
+.chip.cur{box-shadow:0 0 0 3px var(--gold)}
+.legend{font-size:12px;color:var(--muted);margin-top:6px;display:flex;gap:12px;flex-wrap:wrap}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px;border:1px solid var(--line)}
+.savebar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:10px 0 calc(10px + var(--sab));box-shadow:0 -4px 16px rgba(0,0,0,.06)}
+.savebar .msg{margin:0 0 8px}
+.donebox{text-align:center;border:2px solid var(--green);border-radius:16px;padding:22px 16px;margin:16px 0}
+.donebox .dtitle{font-size:22px;font-weight:800;color:var(--green)}
+
+/* ---- admin / editor ---- */
+.atabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:12px 0 4px}
+.atabs button{min-height:46px;border-radius:10px;border:1px solid var(--green-line);background:#fff;color:var(--green);font-weight:700;font-size:13px;padding:4px 2px;line-height:1.25}
+.atabs button.on{background:var(--green);border-color:var(--green);color:#fff}
+.url{font-size:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-ligatures:none;font-feature-settings:"calt" 0,"liga" 0;color:var(--muted);word-break:break-all;background:var(--bg2);border-radius:8px;padding:8px 10px;margin:6px 0 8px}
+.prog{height:10px;border-radius:99px;background:var(--bg2);overflow:hidden;margin:6px 0}
+.prog i{display:block;height:100%;background:var(--green2);border-radius:99px}
+.ghead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.ghead b{font-size:17px;color:var(--green)}
+.ghead select,.prow select{min-height:44px;border:1px solid #C5CECA;border-radius:10px;background:#fff;padding:4px 8px;font-size:16px}
+.prow{display:flex;gap:6px;align-items:center;margin:6px 0}
+.prow .inp{flex:1 1 auto;min-width:0}
+.prow select{flex:none;width:84px}
+.xbtn{flex:none;width:44px;height:44px;border-radius:10px;border:1px solid #E8C4C0;background:#fff;color:var(--red);font-size:20px;font-weight:700;padding:0}
+.pars{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin:4px 0 10px}
+.parc{border:1px solid var(--green-line);border-radius:10px;background:#fff;padding:4px 0 6px;text-align:center}
+.parc span{display:block;font-size:11px;color:var(--muted)}
+.parc b{display:block;font-size:20px;color:var(--green)}
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.scell{border:1px solid var(--line);border-radius:10px;padding:6px 8px 8px;display:block}
+.scell span{display:block;font-size:12px;color:var(--muted);line-height:1.4;white-space:nowrap;margin-bottom:4px}
+.scell span b{font-size:15px;color:var(--ink);margin-right:4px}
+.scell input{display:block;width:100%;height:46px;border:1px solid #C5CECA;border-radius:8px;text-align:center;font-size:22px;font-weight:700;padding:0}
+.frow{display:grid;grid-template-columns:minmax(0,1fr) 70px 84px;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.frow .inp{min-height:44px;padding:6px 8px;text-align:center}
+.frow.h{font-size:12px;color:var(--muted);border-bottom:1px solid var(--line)}
+.chk{display:flex;gap:10px;align-items:flex-start;margin:12px 0;font-size:15px;font-weight:600}
+.chk input{width:24px;height:24px;flex:none;margin-top:1px;accent-color:var(--green)}
+.chk small{display:block;font-weight:400;color:var(--muted);font-size:13px}
+ul.plain{list-style:none;margin:0;padding:0}
+ul.plain li{padding:10px 0;border-bottom:1px solid var(--line)}
+
+/* ---- overlay ---- */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50}
+.ovbox{background:#fff;border-radius:16px;padding:20px;max-width:420px;width:100%}
+.ovbox p{margin:0 0 16px;font-size:16px;white-space:pre-line}
+.ovbox .row{justify-content:flex-end}
+.toast{position:fixed;left:50%;bottom:calc(96px + var(--sab));transform:translateX(-50%);background:rgba(27,34,32,.94);color:#fff;font-size:14px;font-weight:600;padding:10px 18px;border-radius:999px;z-index:60;max-width:90vw;text-align:center}
+</style>
+</head>
+<body>
+<div id="app"><div class="wrap pad center" style="color:#5C6964">読み込み中…</div></div>
+<!-- ▼▼ Firebase の接続設定（書き換えるのはここだけ）。すべて空のままならデモモードで起動します ▼▼ -->
+<script id="fbconfig">
+window.FIREBASE_CONFIG = {
+  "apiKey": "",
+  "authDomain": "",
+  "databaseURL": "",
+  "projectId": "",
+  "storageBucket": "",
+  "messagingSenderId": "",
+  "appId": ""
+};
+</script>
+<!-- ▲▲ 接続設定ここまで ▲▲ -->
+<script type="module">
+/* =====================================================================
+   ゴルフコンペ LIVE順位速報  v1.0
+   画面: ホーム(作成) / 順位速報 #v-{コンペID} / スコア入力 #g-{コンペID}-{組ID}-{キー} / 幹事 #a-{コンペID}
+   ===================================================================== */
+const FB_VER = '10.14.1';
+const SAVE_TIMEOUT_MS = 8000;
+const MAX_STROKES = 30;
+const DEFAULT_PARS = [4,4,3,5,4,4,3,4,5, 4,4,3,5,4,4,3,4,5];
+
+const app = document.getElementById('app');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- small utilities ---------- */
+const mem = {};
+const ls = {
+  get(k){ try{ const v = localStorage.getItem('golflive:'+k); return v === null ? (mem[k] ?? null) : v; }catch(e){ return mem[k] ?? null; } },
+  set(k,v){ mem[k] = v; try{ localStorage.setItem('golflive:'+k, v); }catch(e){} },
+  del(k){ delete mem[k]; try{ localStorage.removeItem('golflive:'+k); }catch(e){} },
+  getJSON(k){ try{ return JSON.parse(this.get(k)); }catch(e){ return null; } },
+  setJSON(k,v){ this.set(k, JSON.stringify(v)); }
+};
+function rid(n){
+  const abc = 'abcdefghjkmnpqrstuvwxyz23456789'; const a = new Uint8Array(n);
+  (globalThis.crypto || {}).getRandomValues ? crypto.getRandomValues(a) : a.forEach((_,i)=>a[i]=Math.floor(Math.random()*256));
+  let s = ''; for (const b of a) s += abc[b % abc.length]; return s;
+}
+function sha256hex(str){
+  const rr = (v,n) => (v>>>n) | (v<<(32-n));
+  const H = [], K = []; const comp = {}; let pc = 0;
+  for (let c = 2; pc < 64; c++){ if (!comp[c]){ for (let i = c*c; i < 320; i += c) comp[i] = 1;
+    if (pc < 8) H[pc] = (Math.pow(c, .5) * 4294967296) | 0; K[pc++] = (Math.pow(c, 1/3) * 4294967296) | 0; } }
+  const b = Array.from(new TextEncoder().encode(str)); const bits = b.length * 8;
+  b.push(0x80); while (b.length % 64 !== 56) b.push(0);
+  for (const w of [Math.floor(bits / 4294967296), bits >>> 0]) b.push(w>>>24&255, w>>>16&255, w>>>8&255, w&255);
+  for (let i = 0; i < b.length; i += 64){
+    const w = [];
+    for (let j = 0; j < 16; j++) w[j] = (b[i+4*j]<<24 | b[i+4*j+1]<<16 | b[i+4*j+2]<<8 | b[i+4*j+3]) | 0;
+    for (let j = 16; j < 64; j++){ const x = w[j-15], y = w[j-2];
+      w[j] = (w[j-16] + (rr(x,7)^rr(x,18)^(x>>>3)) + w[j-7] + (rr(y,17)^rr(y,19)^(y>>>10))) | 0; }
+    let [a,bb,c,d,e,f,g,h] = H;
+    for (let j = 0; j < 64; j++){
+      const t1 = (h + (rr(e,6)^rr(e,11)^rr(e,25)) + ((e&f)^(~e&g)) + K[j] + w[j]) | 0;
+      const t2 = ((rr(a,2)^rr(a,13)^rr(a,22)) + ((a&bb)^(a&c)^(bb&c))) | 0;
+      h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = bb; bb = a; a = (t1 + t2) | 0;
+    }
+    [a,bb,c,d,e,f,g,h].forEach((v,j) => H[j] = (H[j] + v) | 0);
+  }
+  return H.map(x => (x>>>0).toString(16).padStart(8,'0')).join('');
+}
+const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(Object.assign(new Error('timeout'), {code:'TIMEOUT'})), ms))]);
+const authSetupMsg = e => { const c = String((e && e.code) || ''); return /^auth\//.test(c) && c !== 'auth/network-request-failed' ? `ログインの設定に問題があります。Firebase コンソールの Authentication で「匿名」ログインを有効にしてください。（${c}）` : ''; };
+const memo = {};  /* 画面を行き来したときに、直前に受信したデータをすぐ表示するための控え */
+const memoSet = (cid, k, v) => { (memo[cid] = memo[cid] || {})[k] = v; };
+const isDenied = e => /permission/i.test(e ? `${e.code || ''} ${e.message || ''}` : '');
+function toast(msg){
+  document.querySelectorAll('.toast').forEach(n => n.remove());
+  const n = document.createElement('div'); n.className = 'toast'; n.textContent = msg; document.body.appendChild(n);
+  setTimeout(() => n.remove(), 2200);
+}
+function ask(msg, okLabel = 'OK', cancelLabel = 'キャンセル'){
+  return new Promise(res => {
+    const o = document.createElement('div'); o.className = 'ov';
+    o.innerHTML = `<div class="ovbox" role="dialog" aria-modal="true"><p>${esc(msg)}</p><div class="row">${cancelLabel ? `<button class="btn" data-a="0">${esc(cancelLabel)}</button>` : ''}<button class="btn primary" data-a="1">${esc(okLabel)}</button></div></div>`;
+    o.onclick = e => { const b = e.target.closest('[data-a]'); if (b){ o.remove(); res(b.dataset.a === '1'); } };
+    document.body.appendChild(o);
+  });
+}
+async function copyText(t){
+  try{ await navigator.clipboard.writeText(t); toast('コピーしました'); return; }catch(e){}
+  try{ const ta = document.createElement('textarea'); ta.value = t; ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove();
+    toast(ok ? 'コピーしました' : 'コピーできませんでした。URLを長押ししてコピーしてください'); }
+  catch(e){ toast('コピーできませんでした。URLを長押ししてコピーしてください'); }
+}
+const fmtDate = d => { if (!d) return ''; const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d); if (!m) return d;
+  const w = '日月火水木金土'[new Date(+m[1], +m[2]-1, +m[3]).getDay()]; return `${+m[1]}年${+m[2]}月${+m[3]}日（${w}）`; };
+const fmtTime = t => { const d = new Date(t); return `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`; };
+const todayStr = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+
+/* ---------- golf logic ---------- */
+const holeOrder = start => Array.from({length:18}, (_, i) => ((start - 1 + i) % 18) + 1);
+const startLabel = s => s === 1 ? '1番（OUT）' : s === 10 ? '10番（IN）' : `${s}番`;
+const fmtDiff = d => d === 0 ? 'E' : d > 0 ? `＋${d}` : `－${-d}`;
+const diffClass = d => d === 0 ? 'even' : d > 0 ? 'over' : 'under';
+const scoreOf = (scores, pid, h) => { const v = scores && scores[pid] && scores[pid]['h'+h]; return (typeof v === 'number' && v >= 1) ? v : null; };
+function parsOf(pub){ const s = String((pub && pub.pars) || ''); return Array.from({length:18}, (_, i) => +s[i] || DEFAULT_PARS[i]); }
+function sortedGroups(pub){ return Object.entries((pub && pub.groups) || {}).map(([id,g]) => ({id, n:+g.n || 0, start:+g.start || 1})).sort((a,b) => a.n - b.n); }
+function sortedPlayers(pub, gid){
+  const gn = Object.fromEntries(sortedGroups(pub).map(g => [g.id, g.n]));
+  return Object.entries((pub && pub.players) || {}).map(([id,p]) => ({id, name:p.name, g:p.g, o:+p.o || 0, gn: gn[p.g] || 0}))
+    .filter(p => !gid || p.g === gid).sort((a,b) => a.gn - b.gn || a.o - b.o);
+}
+/* 未入力ホールは計算に含めない（0打扱いにしない） */
+function computeBoard(pub, scores){
+  const pars = parsOf(pub); let lastU = 0;
+  const rows = sortedPlayers(pub).map(p => {
+    let holes = 0, strokes = 0, par = 0;
+    for (let h = 1; h <= 18; h++){ const v = scoreOf(scores, p.id, h); if (v !== null){ holes++; strokes += v; par += pars[h-1]; } }
+    const u = scores && scores[p.id] && scores[p.id].u; if (typeof u === 'number' && u > lastU) lastU = u;
+    return {...p, holes, strokes, par, diff: strokes - par};
+  });
+  const allDone = rows.length > 0 && rows.every(r => r.holes === 18);
+  const closed = !!(pub && pub.final && pub.final.closed);
+  const isFinal = allDone || closed;
+  const ranked = rows.filter(r => isFinal ? r.holes === 18 : r.holes > 0);
+  const rest = rows.filter(r => !ranked.includes(r));
+  ranked.sort((a,b) => a.diff - b.diff || b.holes - a.holes || a.gn - b.gn || a.o - b.o);
+  let prev = null, rank = 0;
+  ranked.forEach((r,i) => { if (prev === null || r.diff !== prev){ rank = i + 1; prev = r.diff; } r.rank = rank; });
+  rest.sort((a,b) => b.holes - a.holes || a.gn - b.gn || a.o - b.o);
+  return {ranked, rest, isFinal, allDone, lastU, started: rows.some(r => r.holes > 0)};
+}
+function groupProgress(pub, scores, g){
+  const ps = sortedPlayers(pub, g.id); const order = holeOrder(g.start);
+  let done = 0; const partial = [];
+  for (const h of order){ const n = ps.filter(p => scoreOf(scores, p.id, h) !== null).length;
+    if (ps.length && n === ps.length) done++; else if (n > 0) partial.push(h); }
+  const next = order.find(h => ps.every(p => scoreOf(scores, p.id, h) === null));
+  return {players: ps, done, partial, next};
+}
+
+/* ---------- data store: Firebase ---------- */
+async function createFirebaseStore(cfg){
+  const base = `https://www.gstatic.com/firebasejs/${FB_VER}/`;
+  const [appM, dbM, authM] = await Promise.all([import(base+'firebase-app.js'), import(base+'firebase-database.js'), import(base+'firebase-auth.js')]);
+  const fb = appM.initializeApp(cfg);
+  const db = dbM.getDatabase(fb);
+  const auth = authM.getAuth(fb);
+  const authReady = new Promise(res => { let off = null, done = false;
+    off = authM.onAuthStateChanged(auth, () => { if (done) return; done = true; res(); if (off) off(); }, () => res());
+    setTimeout(res, 10000); });
+  let uidP = null;
+  return {
+    mode: 'firebase',
+    watch(path, cb, onErr){ return dbM.onValue(dbM.ref(db, path), s => cb(s.val()), e => { if (onErr) onErr(e); }); },
+    get(path){ return dbM.get(dbM.ref(db, path)).then(s => s.val()); },
+    set(path, v){ return dbM.set(dbM.ref(db, path), v); },
+    update(path, obj){ return dbM.update(dbM.ref(db, path), obj); },
+    now(){ return dbM.serverTimestamp(); },
+    onConn(cb){ return dbM.onValue(dbM.ref(db, '.info/connected'), s => cb(s.val() === true)); },
+    uid(){ if (!uidP) uidP = (async () => { await authReady; if (!auth.currentUser) await authM.signInAnonymously(auth); return auth.currentUser.uid; })().catch(e => { uidP = null; throw e; }); return uidP; }
+  };
+}
+/* ---------- data store: demo (this device only) ---------- */
+function createLocalStore(){
+  const KEY = 'golflive:demo-db'; let memTree = {};
+  const load = () => { try{ const v = localStorage.getItem(KEY); return v ? JSON.parse(v) : memTree; }catch(e){ return memTree; } };
+  const persist = () => { memTree = tree; try{ localStorage.setItem(KEY, JSON.stringify(tree)); }catch(e){} };
+  let tree = load(); const watchers = new Set();
+  const seg = p => p.split('/').filter(Boolean);
+  const getAt = (t, p) => { let n = t; for (const k of seg(p)){ if (n === null || typeof n !== 'object') return null; n = n[k]; if (n === undefined) return null; } return n ?? null; };
+  const setAt = (t, p, v) => { const ks = seg(p); let n = t; const trail = [];
+    for (let i = 0; i < ks.length - 1; i++){ if (n[ks[i]] === null || typeof n[ks[i]] !== 'object') n[ks[i]] = {}; trail.push([n, ks[i]]); n = n[ks[i]]; }
+    const last = ks[ks.length-1];
+    if (v === null || v === undefined) delete n[last]; else n[last] = JSON.parse(JSON.stringify(v));
+    for (let i = trail.length - 1; i >= 0; i--){ const [par, k] = trail[i]; if (par[k] && typeof par[k] === 'object' && !Object.keys(par[k]).length) delete par[k]; else break; } };
+  const stamp = v => { if (v && typeof v === 'object'){ if (v.__ts) return Date.now(); const o = {}; for (const k in v){ const x = stamp(v[k]); if (x !== null && x !== undefined) o[k] = x; } return o; } return v; };
+  const notify = () => { for (const w of [...watchers]) { try{ w.cb(JSON.parse(JSON.stringify(getAt(tree, w.path)))); }catch(e){ console.error(e); } } };
+  try{ window.addEventListener('storage', e => { if (e.key === KEY){ tree = load(); notify(); } }); }catch(e){}
+  let uid = ls.get('demo-uid'); if (!uid){ uid = 'demo' + rid(10); ls.set('demo-uid', uid); }
+  const denied = () => Object.assign(new Error('PERMISSION_DENIED'), {code:'PERMISSION_DENIED'});
+  /* デモ用の簡易チェック（本番のアクセス制限は Firebase のルールで行います） */
+  const check = (path, v) => { const m = /^comps\/([^/]+)\/(admins|members)\/([^/]+)$/.exec(seg(path).join('/')); if (!m || v === null) return;
+    if (!getAt(tree, `comps/${m[1]}/private`)) return;
+    if (m[2] === 'admins' && v.k !== getAt(tree, `comps/${m[1]}/private/adminKey`)) throw denied();
+    if (m[2] === 'members' && v.k !== getAt(tree, `comps/${m[1]}/private/groupKeys/${v.g}`)) throw denied(); };
+  const apply = ops => new Promise((res, rej) => { try{ tree = load(); for (const [p, v] of ops) check(p, v);
+      for (const [p, v] of ops) setAt(tree, p, stamp(v)); persist(); notify(); setTimeout(res, 0); }catch(e){ rej(e); } });
+  return {
+    mode: 'demo',
+    watch(path, cb){ const w = {path, cb}; watchers.add(w); setTimeout(() => { if (watchers.has(w)) cb(JSON.parse(JSON.stringify(getAt(tree, path)))); }, 0); return () => watchers.delete(w); },
+    get(path){ const m = /^comps\/([^/]+)\/private/.exec(seg(path).join('/')); const t = load();
+      if (m && (getAt(t, `comps/${m[1]}/admins/${uid}/k`) || 0) !== getAt(t, `comps/${m[1]}/private/adminKey`)) return Promise.reject(denied());
+      return Promise.resolve(JSON.parse(JSON.stringify(getAt(t, path)))); },
+    set(path, v){ return apply([[path, v]]); },
+    update(path, obj){ return apply(Object.entries(obj).map(([k, v]) => [path + '/' + k, v])); },
+    now(){ return {__ts: 1}; },
+    onConn(cb){ setTimeout(() => cb(true), 0); return () => {}; },
+    async uid(){ return uid; }
+  };
+}
+
+/* ---------- boot ---------- */
+let store = null, bootError = null;
+const P = (cid, sub) => `comps/${cid}/${sub}`;
+const baseUrl = () => location.href.split('#')[0];
+const viewerUrl = cid => `${baseUrl()}#v-${cid}`;
+const groupUrl = (cid, gid, key) => `${baseUrl()}#g-${cid}-${gid}-${key}`;
+const adminUrl = (cid, sec) => `${baseUrl()}#a-${cid}-${sec}`;
+const lineHref = text => `https://line.me/R/share?text=${encodeURIComponent(text)}`;
+const demoBar = () => store && store.mode === 'demo' ? `<div class="demo"><div class="wrap"><b>デモモード</b>：この端末の中だけで動きます。URLを送っても他の人には共有されません。</div></div>` : '';
+const pageHead = (title, sub, link) => `<header class="bar"><div class="wrap"><div class="grow"><div class="bar-t">${esc(title)}</div>${sub ? `<div class="bar-s">${esc(sub)}</div>` : ''}</div>${link || ''}</div></header><div class="goldline"></div>${demoBar()}`;
+const simplePage = (title, bodyHtml) => `${pageHead(title)}<div class="wrap">${bodyHtml}</div>`;
+
+async function boot(){
+  const cfg = window.FIREBASE_CONFIG;
+  const configured = cfg && typeof cfg === 'object' && cfg.apiKey;
+  try{
+    if (configured){
+      if (!cfg.databaseURL) throw Object.assign(new Error('接続設定に databaseURL がありません。Firebase コンソールで Realtime Database を作成してから、設定を貼り直してください。'), {friendly:true});
+      store = await withTimeout(createFirebaseStore(cfg), 20000);
+    } else store = createLocalStore();
+  }catch(e){ console.error(e); bootError = e; }
+  window.addEventListener('hashchange', route);
+  route();
+}
+
+let unmount = null, routeTok = 0;
+function route(){
+  if (unmount){ try{ unmount(); }catch(e){ console.error(e); } unmount = null; }
+  app.onclick = app.oninput = app.onchange = app.onsubmit = null; app.removeAttribute('data-screen');
+  routeTok++; window.scrollTo(0, 0);
+  if (bootError){
+    app.innerHTML = simplePage('ゴルフコンペ LIVE順位速報', `<div class="msg err">${bootError.friendly ? esc(bootError.message) : '読み込みに失敗しました。通信状況を確認して、ページを開き直してください。'}</div><button class="btn primary block" onclick="location.reload()">もう一度読み込む</button>`);
+    return;
+  }
+  let hash = location.hash.replace(/^#\/?/, ''); try{ hash = decodeURIComponent(hash); }catch(e){}
+  const parts = hash.trim().split('-');
+  const ok = s => /^[a-z0-9]+$/i.test(s || '');
+  if (parts[0] === 'v' && ok(parts[1])) unmount = mountViewer(app, parts[1]);
+  else if (parts[0] === 'g' && ok(parts[1]) && ok(parts[2]) && ok(parts[3])) unmount = mountRep(app, parts[1], parts[2], parts[3]);
+  else if (parts[0] === 'a' && ok(parts[1])) unmount = mountAdmin(app, parts[1], ok(parts[2]) ? parts[2] : '');
+  else if (parts[0] === 'new') unmount = mountCreate(app);
+  else unmount = mountHome(app);
+}
+
+/* =====================================================================
+   順位速報（参加者全員・閲覧のみ）
+   ===================================================================== */
+function mountViewer(el, cid){
+  el.dataset.screen = 'viewer';
+  let pub, scores = {}, conn = false, got = false, slow = false, failed = false, tab = null;
+  if (memo[cid] && 'pub' in memo[cid]){ pub = memo[cid].pub; got = true; scores = memo[cid].scores || {}; }
+  const repHash = ls.get('rep:' + cid);
+  const unsent = () => { if (!repHash) return false; const o = ls.getJSON(`pend:${cid}:${repHash.split('-')[2]}`); return !!o && Object.keys(o).length > 0; };
+  const render = () => {
+    if (failed){ el.innerHTML = simplePage('LIVE 順位速報', `<div class="msg err">順位表を読み込めませんでした。URLが正しいか確認してください。</div>`); return; }
+    if (!got){ el.innerHTML = simplePage('LIVE 順位速報', `<div class="pad center" style="color:var(--muted)">読み込み中…${slow ? '<div class="msg warn" style="margin-top:16px">通信に時間がかかっています。電波の良い場所でお待ちください。</div>' : ''}</div>`); return; }
+    if (!pub){ el.innerHTML = simplePage('LIVE 順位速報', `<div class="msg err">コンペが見つかりません。<small>URLが正しいか、幹事に確認してください。</small></div>`); return; }
+    const b = computeBoard(pub, scores);
+    const fin = pub.final || {}; const finRows = fin.rows || {};
+    const hasPeoria = !!fin.published && Object.values(finRows).some(r => r && r.rank);
+    const cur = hasPeoria ? (tab || 'peoria') : 'gross';
+    const sub = [fmtDate(pub.date), pub.course].filter(Boolean).join('・');
+    let h = pageHead(pub.name || 'ゴルフコンペ', sub);
+    if (!conn) h += `<div class="offline"><div class="wrap">通信が切れています。つながり次第、自動で最新の順位に更新します。</div></div>`;
+    if (unsent()) h += `<div class="offline" id="unsentNote"><div class="wrap">この端末に未送信のスコアがあります。他の人の画面にはまだ反映されていません。</div></div>`;
+    h += `<div class="wrap"><div class="livehead"><div class="live"><span class="dot ${conn ? '' : 'off'}"></span><span>LIVE 順位速報</span></div>`;
+    h += cur === 'peoria' ? `<span class="badge final" id="statusBadge">最終順位</span>` : b.isFinal ? `<span class="badge final" id="statusBadge">最終結果</span>` : `<span class="badge" id="statusBadge">暫定順位</span>`;
+    h += `</div>`;
+    if (hasPeoria) h += `<div class="tabs"><button data-tab="peoria" class="${cur === 'peoria' ? 'on' : ''}">新ペリア 最終順位</button><button data-tab="gross" class="${cur === 'gross' ? 'on' : ''}">グロス順位</button></div>`;
+    if (cur === 'peoria'){
+      const players = sortedPlayers(pub); const byId = Object.fromEntries([...b.ranked, ...b.rest].map(r => [r.id, r]));
+      const list = players.map(p => ({...p, rank: +(finRows[p.id] || {}).rank || 0, net: (finRows[p.id] || {}).net, gross: byId[p.id]}))
+        .sort((x,y) => (x.rank || 9999) - (y.rank || 9999) || x.gn - y.gn || x.o - y.o);
+      h += `<p class="note">ゴルフ場で集計された新ペリア方式の最終順位です。</p><div class="lb" id="board"><div class="lbh"><span>順位</span><span>名前</span><span>NET</span><span>グロス</span></div>`;
+      for (const r of list){
+        h += `<div class="lbr ${r.rank && r.rank <= 3 ? 'top' : ''}" data-pid="${esc(r.id)}"><span>${r.rank ? `<span class="rk ${r.rank <= 3 ? 'r'+r.rank : ''}">${r.rank}<small>位</small></span>` : `<span class="rk none">–</span>`}</span>`
+          + `<span class="pn">${esc(r.name)} <span class="pg">${r.gn}組</span></span>`
+          + `<span class="sc over num" style="font-size:20px">${r.net !== undefined && r.net !== null && r.net !== '' ? esc(r.net) : '–'}</span>`
+          + `<span class="hl num">${r.gross && r.gross.holes === 18 ? `<b>${r.gross.strokes}</b>` : '–'}</span></div>`;
+      }
+      h += `</div>`;
+    } else {
+      h += b.isFinal ? `<p class="note">${b.allDone ? '全員が18ホールを終了しました。' : 'ラウンド終了。'}グロス（実際の打数）の最終結果です。</p>`
+        : `<p class="note">プレー途中の<b>暫定順位</b>です。入力済みホールのPARとの差で並べています（組によって終了ホール数が違います）。</p>`;
+      h += `<div class="lb" id="board"><div class="lbh"><span>順位</span><span>名前</span><span>スコア</span><span>終了</span></div>`;
+      if (!b.ranked.length) h += `<div class="pad center" style="color:var(--muted)">${b.isFinal ? '18ホールを終了した人がまだいません。' : 'まだスコアの入力はありません。<br>入力されると自動で表示されます。'}</div>`;
+      for (const r of b.ranked){
+        h += `<div class="lbr ${r.rank <= 3 ? 'top' : ''}" data-pid="${esc(r.id)}" data-rank="${r.rank}" data-diff="${r.diff}" data-holes="${r.holes}">`
+          + `<span><span class="rk ${r.rank <= 3 ? 'r'+r.rank : ''}">${r.rank}<small>位</small></span></span>`
+          + `<span class="pn">${esc(r.name)} <span class="pg">${r.gn}組</span></span>`
+          + `<span class="sc ${diffClass(r.diff)} num">${fmtDiff(r.diff)}${b.isFinal ? `<small>${r.strokes}打</small>` : ''}</span>`
+          + (r.holes === 18 ? `<span class="hl fin">18ホール<br>終了</span>` : `<span class="hl num"><b>${r.holes}</b>ホール<br>終了</span>`) + `</div>`;
+      }
+      h += `</div>`;
+      if (b.rest.length){
+        h += `<div class="sect">${b.isFinal ? '18ホール未完了（順位対象外）' : 'スタート前'}</div><div id="restBoard">`;
+        for (const r of b.rest) h += `<div class="lbr wait" data-pid="${esc(r.id)}" data-holes="${r.holes}"><span><span class="rk none">–</span></span><span class="pn">${esc(r.name)} <span class="pg">${r.gn}組</span></span><span class="sc num" style="font-size:16px;color:var(--muted)">${r.holes ? fmtDiff(r.diff) : ''}</span><span class="hl num">${r.holes ? `<b>${r.holes}</b>ホール<br>終了` : '未入力'}</span></div>`;
+        h += `</div>`;
+      }
+    }
+    h += `<div class="foot">${b.lastU ? `最終更新 <b class="num" id="lastUpdate">${fmtTime(b.lastU)}</b>　` : ''}順位は自動で更新されます</div>`;
+    if (repHash) h += `<div class="backrep"><a class="btn primary block" href="#${esc(repHash)}">スコア入力に戻る</a></div>`;
+    h += `</div>`;
+    el.innerHTML = h;
+  };
+  const offs = [
+    store.watch(P(cid, 'pub'), v => { pub = v; got = true; memoSet(cid, 'pub', v); render(); }, () => { failed = true; render(); }),
+    store.watch(P(cid, 'scores'), v => { scores = v || {}; memoSet(cid, 'scores', scores); render(); }, () => {}),
+    store.onConn(c => { conn = c; render(); })
+  ];
+  const t = setTimeout(() => { if (!got){ slow = true; render(); } }, 8000);
+  el.onclick = e => { const b = e.target.closest('[data-tab]'); if (b){ tab = b.dataset.tab; render(); } };
+  render();
+  return () => { offs.forEach(f => f()); clearTimeout(t); };
+}
+
+/* =====================================================================
+   スコア入力（各組の代表者）
+   ===================================================================== */
+function mountRep(el, cid, gid, key){
+  el.dataset.screen = 'rep';
+  const tok = routeTok; const alive = () => tok === routeTok;
+  let pub = null, scores = {}, gotPub = false, gotScores = false, conn = false, phase = 'auth', failMsg = '', slow = false, started = false;
+  if (memo[cid]){ if ('pub' in memo[cid]){ pub = memo[cid].pub; gotPub = true; } if ('scores' in memo[cid]){ scores = memo[cid].scores || {}; gotScores = true; } }
+  let hole = null, done = false, draft = {}, dirty = false, flash = null, seq = 0;
+  const st = {};                       /* ホールごとの状態: saving | pending | error */
+  const pendKey = `pend:${cid}:${gid}`;
+  let pend = ls.getJSON(pendKey) || {}; /* まだ保存が確認できていないホール */
+  const offs = [];
+  const members = () => sortedPlayers(pub, gid);
+  const grp = () => sortedGroups(pub).find(g => g.id === gid);
+  const order = () => holeOrder(grp() ? grp().start : 1);
+  const filled = h => members().filter(p => scoreOf(scores, p.id, h) !== null).length;
+  const savePend = () => { Object.keys(pend).length ? ls.setJSON(pendKey, pend) : ls.del(pendKey); };
+  const loadDraft = () => { draft = {}; const pv = pend[hole] && pend[hole].v;
+    for (const p of members()){ const v = pv && (p.id in pv) ? pv[p.id] : scoreOf(scores, p.id, hole); draft[p.id] = (typeof v === 'number') ? v : null; } dirty = false; };
+  const pickAfter = h => { const o = order(); const i = h ? o.indexOf(h) : -1;
+    for (let k = 1; k <= 18; k++){ const hh = o[(i + k) % 18]; if (hh !== h && filled(hh) === 0 && !pend[hh]) return hh; } return null; };
+  let flashT = 0;
+  const goto = h => { hole = h; done = (h === null); if (!done) loadDraft(); render(); window.scrollTo(0, 0);
+    clearTimeout(flashT); if (flash) flashT = setTimeout(() => { flash = null; const f = el.querySelector('#flash'); if (f) f.remove(); }, 6000); };
+
+  function stripHtml(){
+    const o = order();
+    return `<div class="striplabel">入力状況（タップでそのホールへ移動・修正できます）</div><div class="strip">` + o.map(h => {
+      const n = filled(h), m = members().length;
+      const c = pend[h] ? 'pend' : (m && n === m) ? 'done' : n > 0 ? 'part' : '';
+      return `<button class="chip ${c} ${h === hole && !done ? 'cur' : ''}" data-goto="${h}" aria-label="${h}番ホール">${h}</button>`; }).join('')
+      + `</div><div class="legend"><span><i style="background:var(--green);border-color:var(--green)"></i>保存済み</span><span><i style="background:#D9A400;border-color:#D9A400"></i>未送信</span><span><i style="background:var(--amber-soft);border-color:#D9A400"></i>一部未入力</span></div>`;
+  }
+  function pendHtml(){
+    /* いま開いているホールの状態は画面下に出すので、ここには他のホールの未送信だけを出す */
+    const hs = order().filter(h => pend[h] && (done || h !== hole || !(st[h] === 'pending' || st[h] === 'saving'))); if (!hs.length) return '';
+    return `<div class="msg warn" id="pendBar">まだ保存できていないホール：${hs.map(h => h + '番').join('、')}<small>電波が戻ると自動で送信します。このページは閉じないでください。</small><button class="btn" data-resend style="margin-top:8px">いますぐ再送信</button></div>`;
+  }
+  function statusHtml(){
+    const s = st[hole];
+    if (s === 'saving') return `<div class="msg ok" id="saveStatus" data-state="saving">保存中…</div>`;
+    if (s === 'pending') return `<div class="msg warn" id="saveStatus" data-state="pending">まだ保存できていません（通信待ち）<small>電波が戻ると自動で送信します。このページは閉じないでください。</small></div><button class="btn block" data-skip style="margin-bottom:8px">先に次のホールを入力する</button>`;
+    if (s === 'error') return `<div class="msg err" id="saveStatus" data-state="error">保存できませんでした<small>${esc(failMsg || 'もう一度「保存」を押してください。')}</small></div>`;
+    return '';
+  }
+  function hlabelHtml(){ return pend[hole] ? '<div class="hedit">未送信（通信待ち）</div>' : filled(hole) > 0 ? '<div class="hedit">入力済み（修正できます）</div>' : ''; }
+  function offHtml(){ return conn ? '' : `<div class="offline" id="offlineBar"><div class="wrap">オフラインです。電波が戻ると自動でつながります。</div></div>`; }
+  function saveLabel(){ return st[hole] === 'saving' ? '保存中…' : (st[hole] === 'pending' || st[hole] === 'error' || pend[hole]) ? 'もう一度保存する' : filled(hole) > 0 ? 'このホールの修正を保存' : 'このホールを保存'; }
+  function render(){
+    if (!alive()) return;
+    const g = pub && grp();
+    if (phase === 'auth'){ el.innerHTML = simplePage('スコア入力', `<div class="pad center" style="color:var(--muted)">確認中…${slow ? '<div class="msg warn" style="margin-top:16px" id="slowMsg">通信を待っています。電波が戻ると自動で開きます。</div>' : ''}</div>`); return; }
+    if (phase === 'bad'){ el.innerHTML = simplePage('スコア入力', `<div class="msg err">${esc(failMsg)}</div><button class="btn primary block" onclick="location.reload()">もう一度読み込む</button>`); return; }
+    if (!gotPub || !gotScores){ el.innerHTML = simplePage('スコア入力', `<div class="pad center" style="color:var(--muted)">読み込み中…</div>`); return; }
+    if (!pub || !g || !members().length){ el.innerHTML = simplePage('スコア入力', `<div class="msg err">この組の情報が見つかりません。<small>幹事に入力用URLを確認してください。</small></div>`); return; }
+    const pars = parsOf(pub); const o = order();
+    let h = pageHead(`${g.n}組 スコア入力`, pub.name, `<a class="bar-link" href="#v-${esc(cid)}">順位を見る</a>`);
+    h += `<div id="offWrap">${offHtml()}</div>`;
+    h += `<main class="wrap rep"><div id="pendWrap">${pendHtml()}</div>`;
+    if (flash) h += `<div class="msg ok" id="flash">✓ ${esc(flash)}</div>`;
+    if (done){
+      const partial = o.filter(x => filled(x) > 0 && filled(x) < members().length);
+      h += `<div class="donebox" id="doneBox"><div class="dtitle">18ホールの入力が完了しました</div><p>おつかれさまでした。<br>修正する場合は下のホール番号をタップしてください。</p>`
+        + (partial.length ? `<div class="msg warn">一部未入力のホールがあります：${partial.map(x => x + '番').join('、')}</div>` : '')
+        + `<a class="btn primary block big" href="#v-${esc(cid)}">順位速報を見る</a></div>`;
+      h += `<div id="stripWrap">${stripHtml()}</div></main>`;
+      el.innerHTML = h; return;
+    }
+    const i = o.indexOf(hole);
+    h += `<div class="holehead"><button class="navb" data-nav="-1" ${i <= 0 ? 'disabled' : ''} aria-label="前のホール">‹</button>`
+      + `<div class="hinfo"><div class="hno num" id="holeNo">${hole}<small>番ホール</small></div><div class="hpar num" id="holePar">PAR ${pars[hole-1]}</div><div id="hlabel">${hlabelHtml()}</div></div>`
+      + `<button class="navb" data-nav="1" ${i >= 17 ? 'disabled' : ''} aria-label="次のホール">›</button></div>`;
+    h += `<div id="rows">` + members().map(p => { const v = draft[p.id];
+      return `<div class="srow" data-pid="${esc(p.id)}"><div class="sname">${esc(p.name)}</div><div class="stepper">`
+        + `<button class="stb" data-step="-1" aria-label="${esc(p.name)} 1打減らす">－</button>`
+        + `<input class="sinput num ${v === null ? 'empty' : ''}" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" placeholder="–" value="${v === null ? '' : v}" aria-label="${esc(p.name)} の打数">`
+        + `<button class="stb" data-step="1" aria-label="${esc(p.name)} 1打増やす">＋</button></div></div>`; }).join('') + `</div>`;
+    h += `<div id="stripWrap">${stripHtml()}</div></main>`;
+    h += `<footer class="savebar"><div class="wrap"><div id="statusWrap">${statusHtml()}</div><button class="btn primary block big" id="saveBtn" ${st[hole] === 'saving' ? 'disabled' : ''}>${saveLabel()}</button></div></footer>`;
+    el.innerHTML = h;
+  }
+  function light(){ /* 入力中の欄を壊さずに、状態表示だけを更新 */
+    if (!alive()) return; const q = id => el.querySelector('#' + id);
+    if (q('offWrap')) q('offWrap').innerHTML = offHtml();
+    if (q('pendWrap')) q('pendWrap').innerHTML = pendHtml();
+    if (q('stripWrap')) q('stripWrap').innerHTML = stripHtml();
+    if (q('statusWrap')) q('statusWrap').innerHTML = statusHtml();
+    if (q('hlabel')) q('hlabel').innerHTML = hlabelHtml();
+    if (q('saveBtn')){ q('saveBtn').textContent = saveLabel(); q('saveBtn').disabled = st[hole] === 'saving'; }
+  }
+  function onData(){
+    if (!alive() || phase !== 'ok' || !gotPub || !gotScores) return;
+    if (!pub || !grp() || !members().length){ render(); return; }
+    if (hole === null && !done){ const h = pickAfter(null); hole = h; done = (h === null); if (!done) loadDraft(); render(); resendAll(); return; }
+    if (done){ render(); return; }
+    const shown = [...el.querySelectorAll('.srow')].map(n => n.dataset.pid).join();
+    if (shown !== members().map(p => p.id).join()){            /* 組のメンバーが変わった */
+      const old = draft, wasDirty = dirty; loadDraft();
+      if (wasDirty){ for (const k in draft) if (k in old) draft[k] = old[k]; dirty = true; }
+      render(); return;
+    }
+    const typing = document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('sinput');
+    if (!dirty && !typing){
+      const before = JSON.stringify(draft); loadDraft();
+      if (JSON.stringify(draft) !== before){ render(); return; }
+    }
+    light();
+  }
+  function setRow(pid, v){
+    draft[pid] = v; dirty = true; flash = null; const f = el.querySelector('#flash'); if (f) f.remove();
+    const row = [...el.querySelectorAll('.srow')].find(n => n.dataset.pid === pid); if (!row) return;
+    const inp = row.querySelector('.sinput'); if (document.activeElement !== inp || String(v ?? '') !== inp.value) inp.value = v === null ? '' : v;
+    inp.classList.toggle('empty', v === null);
+  }
+  function buildUpdate(h, vals){ const u = {}; for (const pid of Object.keys(vals)){ u[`${pid}/h${h}`] = vals[pid] === null ? null : vals[pid]; u[`${pid}/u`] = store.now(); } return u; }
+  function send(h, vals){
+    const n = ++seq; pend[h] = {v: vals, n, t: Date.now()}; savePend();
+    if (h === hole) dirty = false;                    /* 入力内容は送信待ちとして控え済み */
+    st[h] = conn ? 'saving' : 'pending'; light();
+    let settled = false, p;
+    try{ p = store.update(P(cid, 'scores'), buildUpdate(h, vals)); }catch(e){ p = Promise.reject(e); }
+    p.then(() => {
+      settled = true; const latest = !!pend[h] && pend[h].n === n; if (latest){ delete pend[h]; savePend(); }
+      if (!alive() || !latest) return;                /* 同じホールを送り直している場合は、最新の送信の結果だけを表示 */
+      const waiting = st[h]; delete st[h];
+      if (h === hole && !done && waiting){ flash = `${h}番ホールを保存しました`; dirty = false; goto(pickAfter(h)); }
+      else { if (waiting) toast(`${h}番ホールを保存しました`); light(); }
+    }, err => {
+      settled = true; console.error(err); const latest = !!pend[h] && pend[h].n === n; if (latest){ delete pend[h]; savePend(); }
+      if (!alive() || !latest) return;
+      st[h] = 'error'; failMsg = isDenied(err) ? 'この入力用URLでは保存できません。幹事に確認してください。' : 'もう一度「保存」を押してください。';
+      if (h === hole && !done){ dirty = true; light(); } else { toast(`${h}番ホールを保存できませんでした`); light(); }
+    });
+    setTimeout(() => { if (!settled && alive() && st[h] === 'saving' && pend[h] && pend[h].n === n){ st[h] = 'pending'; light(); } }, SAVE_TIMEOUT_MS);
+  }
+  /* 未送信分の再送。古すぎる控え（6時間以上前）は自動では送らず、「いますぐ再送信」を押したときだけ送る */
+  function resendAll(force){ for (const h of Object.keys(pend)){
+      if (!force && pend[h].t && Date.now() - pend[h].t > 6 * 3600 * 1000) continue;
+      const vals = pend[h].v; const ok = {}; for (const p of members()) if (p.id in vals) ok[p.id] = vals[p.id];
+      if (Object.keys(ok).length) send(+h, ok); else { delete pend[h]; savePend(); } } }
+  async function save(){
+    if (done || st[hole] === 'saving') return;
+    const ms = members(); const missing = ms.filter(p => draft[p.id] === null);
+    if (missing.length === ms.length && filled(hole) === 0 && !pend[hole]){ await ask('スコアが入力されていません。\n＋／－ボタンか数字入力で打数を入れてください。', 'OK', ''); return; }
+    if (missing.length){ const ok = await ask(`未入力の人がいます：${missing.map(p => p.name).join('、')}\n\nこのまま保存しますか？（未入力の人はこのホールを計算に含めません）`, 'このまま保存', '戻って入力'); if (!ok) return; }
+    const vals = {}; for (const p of members()) vals[p.id] = (typeof draft[p.id] === 'number') ? draft[p.id] : null;
+    if (!Object.keys(vals).length) return;
+    flash = null; send(hole, vals);
+  }
+  el.onclick = async e => {
+    const t = e.target;
+    const stepB = t.closest('[data-step]');
+    if (stepB){ const pid = stepB.closest('.srow').dataset.pid; const cur = draft[pid]; const par = parsOf(pub)[hole-1];
+      setRow(pid, cur === null ? par : Math.max(1, Math.min(MAX_STROKES, cur + (+stepB.dataset.step)))); return; }
+    if (t.closest('#saveBtn')){ save(); return; }
+    if (t.closest('[data-resend]')){ resendAll(true); toast('再送信しています'); return; }
+    if (t.closest('[data-skip]')){ flash = null; goto(pickAfter(hole)); return; }
+    const nav = t.closest('[data-nav]') || t.closest('[data-goto]');
+    if (nav){
+      const o = order(); const target = nav.dataset.goto ? +nav.dataset.goto : o[o.indexOf(hole) + (+nav.dataset.nav)];
+      if (!target || (target === hole && !done)) return;
+      if (dirty && !done && !(await ask(`${hole}番ホールの入力がまだ保存されていません。\n保存せずに移動しますか？`, '移動する', '戻る'))) return;
+      flash = null; goto(target);
+    }
+  };
+  el.oninput = e => { const inp = e.target; if (!inp.classList || !inp.classList.contains('sinput')) return;
+    const digits = inp.value.replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).replace(/\D/g, '').slice(0, 2);
+    let v = digits === '' ? null : parseInt(digits, 10); if (v !== null && v > MAX_STROKES) v = parseInt(digits.slice(-1), 10); if (v === 0) v = null;
+    const norm = v === null ? '' : String(v); if (inp.value !== norm) inp.value = norm;
+    setRow(inp.closest('.srow').dataset.pid, v); };
+  el.addEventListener('focusin', onFocus);
+  function onFocus(e){ if (e.target.classList && e.target.classList.contains('sinput')) setTimeout(() => { try{ e.target.select(); }catch(x){} }, 0); }
+
+  const grantKey = `grant:${cid}:${gid}:${key}`;
+  function startWatch(){
+    if (started || !alive()) return; started = true; phase = 'ok';
+    ls.set('rep:' + cid, `g-${cid}-${gid}-${key}`);
+    offs.push(store.watch(P(cid, 'pub'), v => { pub = v; gotPub = true; memoSet(cid, 'pub', v); onData(); }, () => { phase = 'bad'; failMsg = 'データを読み込めませんでした。'; render(); }));
+    offs.push(store.watch(P(cid, 'scores'), v => { scores = v || {}; gotScores = true; memoSet(cid, 'scores', scores); onData(); }, () => {}));
+    if (gotPub && gotScores) onData(); else render();
+  }
+  (async () => {
+    let uid;
+    for (;;){
+      try{ uid = await withTimeout(store.uid(), 15000); break; }
+      catch(e){ console.error(e); if (!alive()) return; const m = authSetupMsg(e); if (m){ phase = 'bad'; failMsg = m; render(); return; }
+        slow = true; render(); await new Promise(r => setTimeout(r, 3000)); if (!alive()) return; }
+    }
+    if (!alive()) return;
+    /* 以前この端末で確認済みのURLなら、通信を待たずに入力画面を開く（確認は裏で続ける） */
+    if (ls.get(grantKey) === uid) startWatch();
+    const slowT = setTimeout(() => { if (alive() && !started){ slow = true; render(); } }, 8000);
+    const attempt = n => { let p; try{ p = store.set(P(cid, 'members/' + uid), {g: gid, k: key}); }catch(e){ p = Promise.reject(e); }
+      p.then(() => { clearTimeout(slowT); ls.set(grantKey, uid); startWatch(); }, e => {
+        console.error(e); if (!alive()) return;
+        if (isDenied(e) && n === 0){ setTimeout(() => attempt(1), 900); return; }
+        clearTimeout(slowT); ls.del(grantKey); phase = 'bad';
+        failMsg = isDenied(e) ? 'この入力用URLは無効です。幹事に正しいURLを確認してください。' : '通信できませんでした。電波の良い場所で、もう一度読み込んでください。';
+        render(); }); };
+    attempt(0);
+  })();
+  offs.push(store.onConn(c => { conn = c; if (phase === 'ok' && gotPub && gotScores) light(); }));
+  render();
+  return () => { offs.forEach(f => f()); clearTimeout(flashT); el.removeEventListener('focusin', onFocus); };
+}
+
+/* =====================================================================
+   コンペ情報の編集フォーム（作成・設定で共用）
+   ===================================================================== */
+function newEd(){ return {name:'', date: todayStr(), course:'', pars:[...DEFAULT_PARS], groups:[], players:[], bulk:'', pw:''}; }
+function edFromPub(pub){ return {name: pub.name || '', date: pub.date || '', course: pub.course || '', pars: parsOf(pub),
+  groups: sortedGroups(pub).map(g => ({id:g.id, start:g.start})), players: sortedPlayers(pub).map(p => ({id:p.id, name:p.name, g:p.g})), bulk:'', pw:''}; }
+function edSplit(ed){
+  const names = ed.bulk.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+  ed.groups = []; ed.players = [];
+  names.forEach((name, i) => { if (i % 4 === 0) ed.groups.push({id: 'g' + rid(4), start: 1}); ed.players.push({id: 'p' + rid(6), name, g: ed.groups[ed.groups.length-1].id}); });
+}
+function edHtml(ed, mode){
+  const sum = a => a.reduce((x,y) => x + y, 0);
+  let h = `<div class="card"><h2>${mode === 'create' ? '① ' : ''}コンペ情報</h2>
+    <div class="field"><label for="edName">コンペ名</label><input class="inp" id="edName" data-ed="name" value="${esc(ed.name)}" placeholder="例：第10回 ○○会ゴルフコンペ" maxlength="60"></div>
+    <div class="field"><label for="edDate">開催日</label><input class="inp" id="edDate" type="date" data-ed="date" value="${esc(ed.date)}"></div>
+    <div class="field"><label for="edCourse">ゴルフ場名</label><input class="inp" id="edCourse" data-ed="course" value="${esc(ed.course)}" placeholder="例：○○カントリークラブ" maxlength="60"></div></div>`;
+  if (mode === 'create'){
+    h += `<div class="card"><h2>② 参加者</h2><div class="field"><label for="edBulk">参加者名（1行に1名）</label>
+      <textarea class="inp" id="edBulk" data-ed="bulk" placeholder="田中&#10;佐藤&#10;鈴木&#10;山田&#10;…">${esc(ed.bulk)}</textarea>
+      <p class="hint">LINEなどの名簿をそのまま貼り付けできます。上から4名ずつ組に分けます（あとで自由に変更できます）。</p></div>
+      <button class="btn block" data-split>${ed.players.length ? '名簿から組分けをやり直す' : '4名ずつ組分けする'}</button></div>`;
+  }
+  if (mode !== 'create' || ed.players.length){
+    h += `<div class="card" id="edGroups"><h2>${mode === 'create' ? '③ ' : ''}組分け・スタートホール</h2><p class="hint" style="margin-bottom:10px">名前の修正、組の移動（右の「○組」を変更）、スタートホールの変更ができます。</p>`;
+    ed.groups.forEach((g, gi) => {
+      const ps = ed.players.filter(p => p.g === g.id);
+      h += `<div class="card" style="background:var(--bg2);margin:10px 0" data-gcard="${esc(g.id)}"><div class="ghead"><b>${gi+1}組</b><label style="font-size:13px;color:var(--muted)">スタート <select data-gstart="${esc(g.id)}" aria-label="${gi+1}組のスタートホール">`
+        + Array.from({length:18}, (_, i) => `<option value="${i+1}" ${g.start === i+1 ? 'selected' : ''}>${startLabel(i+1)}</option>`).join('') + `</select></label></div>`;
+      for (const p of ps){
+        h += `<div class="prow"><input class="inp" data-pname="${esc(p.id)}" value="${esc(p.name)}" placeholder="名前" maxlength="30" aria-label="参加者名">`
+          + `<select data-pg="${esc(p.id)}" aria-label="組">` + ed.groups.map((x, xi) => `<option value="${esc(x.id)}" ${x.id === g.id ? 'selected' : ''}>${xi+1}組</option>`).join('') + `</select>`
+          + `<button class="xbtn" data-pdel="${esc(p.id)}" aria-label="削除">×</button></div>`;
+      }
+      h += `<div class="row" style="margin-top:8px"><button class="btn" data-addp="${esc(g.id)}">＋ この組に追加</button>${ps.length === 0 ? `<button class="btn danger" data-gdel="${esc(g.id)}">この組を削除</button>` : ''}</div></div>`;
+    });
+    h += `<button class="btn block" data-addg>＋ 組を追加</button></div>`;
+  }
+  h += `<div class="card"><h2>${mode === 'create' ? '④ ' : ''}各ホールのPAR</h2><p class="hint" style="margin-bottom:8px">数字をタップすると 3 → 4 → 5 → 6 と切り替わります。ゴルフ場のスコアカードに合わせてください。</p>`;
+  for (const [label, from] of [['OUT（1〜9番）', 0], ['IN（10〜18番）', 9]]){
+    h += `<div style="font-size:13px;font-weight:700;margin-top:6px">${label}　計 <span class="num">${sum(ed.pars.slice(from, from+9))}</span></div><div class="pars">`
+      + ed.pars.slice(from, from+9).map((p, i) => `<button class="parc" data-par="${from+i}" aria-label="${from+i+1}番ホールのPAR"><span>${from+i+1}</span><b class="num">${p}</b></button>`).join('') + `</div>`;
+  }
+  h += `<div style="font-weight:700">合計 PAR <span class="num" id="parTotal">${sum(ed.pars)}</span></div></div>`;
+  if (mode === 'create'){
+    h += `<div class="card"><h2>⑤ 幹事パスワード</h2><div class="field"><label for="edPw">パスワード（6文字以上）</label><input class="inp" id="edPw" data-ed="pw" type="text" autocomplete="off" autocapitalize="off" value="${esc(ed.pw)}" maxlength="64">
+      <p class="hint">幹事用の管理画面を開くときに使います。忘れると管理画面に入れなくなるため、必ず控えてください。</p></div></div>`;
+  }
+  return h;
+}
+/* フォーム操作。構造が変わったら true を返す（再描画が必要） */
+function edInput(e, ed){ const t = e.target;
+  if (t.dataset.ed){ ed[t.dataset.ed] = t.value; return; }
+  if (t.dataset.pname){ const p = ed.players.find(x => x.id === t.dataset.pname); if (p) p.name = t.value; } }
+function edChange(e, ed){ const t = e.target;
+  if (t.dataset.gstart){ const g = ed.groups.find(x => x.id === t.dataset.gstart); if (g) g.start = +t.value; return false; }
+  if (t.dataset.pg){ const p = ed.players.find(x => x.id === t.dataset.pg); if (p){ p.g = t.value; ed.players = ed.groups.flatMap(g => ed.players.filter(x => x.g === g.id)); } return true; }
+  return false; }
+async function edClick(e, ed, hasScores){ const t = e.target; let b;
+  if ((b = t.closest('[data-par]'))){ const i = +b.dataset.par; ed.pars[i] = ed.pars[i] >= 6 ? 3 : ed.pars[i] + 1; return true; }
+  if (t.closest('[data-split]')){
+    if (!ed.bulk.trim()){ await ask('参加者名を1行に1名ずつ入力してください。', 'OK', ''); return false; }
+    if (ed.players.length && !(await ask('現在の組分けを消して、名簿から組分けをやり直しますか？', 'やり直す'))) return false;
+    edSplit(ed); return true; }
+  if ((b = t.closest('[data-addp]'))){ ed.players.push({id: 'p' + rid(6), name: '', g: b.dataset.addp}); ed.players = ed.groups.flatMap(g => ed.players.filter(x => x.g === g.id)); return 'focus:' + ed.players.filter(x => x.g === b.dataset.addp).pop().id; }
+  if (t.closest('[data-addg]')){ ed.groups.push({id: 'g' + rid(4), start: 1}); return true; }
+  if ((b = t.closest('[data-gdel]'))){ ed.groups = ed.groups.filter(g => g.id !== b.dataset.gdel); return true; }
+  if ((b = t.closest('[data-pdel]'))){ const p = ed.players.find(x => x.id === b.dataset.pdel); if (!p) return false;
+    const warn = hasScores && hasScores(p.id) ? `${p.name || 'この参加者'} を削除しますか？\n入力済みのスコアも削除されます（「変更を保存」を押すと確定）。` : (p.name ? `${p.name} を削除しますか？` : '');
+    if (warn && !(await ask(warn, '削除する'))) return false;
+    ed.players = ed.players.filter(x => x.id !== p.id); return true; }
+  return false; }
+function edValidate(ed, mode){
+  if (!ed.name.trim()) return 'コンペ名を入力してください。';
+  if (!ed.players.length) return mode === 'create' ? '参加者名を入力して「4名ずつ組分けする」を押してください。' : '参加者が1名もいません。';
+  if (ed.players.some(p => !p.name.trim())) return '名前が空欄の参加者がいます。入力するか、×で削除してください。';
+  if (mode === 'create' && ed.pw.length < 6) return '幹事パスワードを6文字以上で入力してください。';
+  return ''; }
+function edToPub(ed){
+  const groups = {}, players = {};
+  const used = ed.groups.filter(g => ed.players.some(p => p.g === g.id));
+  used.forEach((g, i) => groups[g.id] = {n: i + 1, start: g.start});
+  ed.players.forEach((p, i) => players[p.id] = {name: p.name.trim(), g: p.g, o: i + 1});
+  return {name: ed.name.trim(), date: ed.date || '', course: ed.course.trim(), pars: ed.pars.join(''), groups, players};
+}
+
+/* =====================================================================
+   ホーム・コンペ作成
+   ===================================================================== */
+function mountHome(el){
+  el.dataset.screen = 'home';
+  const mine = (ls.getJSON('mycomps') || []).filter(c => c && c.cid);
+  let h = pageHead('ゴルフコンペ LIVE順位速報', '各組の代表者が入力するだけで、全員がリアルタイムで順位を見られます');
+  h += `<div class="wrap"><div class="card"><h2>幹事の方</h2><p style="margin:0 0 12px">コンペを作成すると、順位速報のURLと、各組のスコア入力用URLが発行されます。LINEで送るだけで準備完了です。</p><a class="btn primary block big" href="#new" id="goCreate">コンペを作成する</a></div>`;
+  if (mine.length){ h += `<div class="card"><h2>この端末で作成したコンペ</h2><ul class="plain">` + mine.map(c => `<li><b>${esc(c.name)}</b><div class="hint">${esc(fmtDate(c.date))}</div><div class="row" style="margin-top:8px"><a class="btn" href="#a-${esc(c.cid)}${c.a ? '-' + esc(c.a) : ''}">幹事の管理画面</a><a class="btn" href="#v-${esc(c.cid)}">順位速報</a></div></li>`).join('') + `</ul></div>`; }
+  h += `<div class="card"><h2>参加者・各組の代表者の方</h2><p style="margin:0">幹事からLINEなどで届いたURLを開いてください。アプリのインストールや会員登録は不要です。</p></div></div>`;
+  el.innerHTML = h;
+  return () => {};
+}
+function mountCreate(el){
+  el.dataset.screen = 'create';
+  const tok = routeTok; const ed = newEd(); let busy = false, err = '', waitMsg = '';
+  const render = (focusId) => {
+    el.innerHTML = pageHead('コンペを作成', '幹事用') + `<div class="wrap">`
+      + (store.mode === 'demo' ? `<button class="btn block" data-sample style="margin-top:14px">サンプル（24名・6組）を自動入力する</button>` : '')
+      + `<div id="ed">${edHtml(ed, 'create')}</div>`
+      + (err ? `<div class="msg err" id="createErr">${esc(err)}</div>` : '')
+      + (waitMsg ? `<div class="msg warn" id="createWait">${esc(waitMsg)}</div>` : '')
+      + `<button class="btn primary block big" id="createBtn" ${busy ? 'disabled' : ''}>${busy ? '作成中…' : 'コンペを作成する'}</button><div style="height:calc(32px + var(--sab))"></div></div>`;
+    if (focusId){ const n = el.querySelector(`[data-pname="${focusId}"]`); if (n) n.focus(); }
+  };
+  el.oninput = e => edInput(e, ed);
+  el.onchange = e => { if (edChange(e, ed)) render(); };
+  el.onclick = async e => {
+    if (busy) return;
+    if (e.target.closest('[data-sample]')){
+      Object.assign(ed, {name: '第1回 サンプルコンペ', course: 'サンプルカントリークラブ', pw: 'demo1234',
+        bulk: ['田中','佐藤','鈴木','山田','高橋','伊藤','渡辺','中村','小林','加藤','吉田','山本','佐々木','松本','井上','木村','林','清水','斎藤','山口','森','池田','橋本','阿部'].join('\n')});
+      edSplit(ed); ed.groups.forEach((g, i) => g.start = i >= 3 ? 10 : 1); err = ''; render(); toast('サンプルを入力しました（パスワード：demo1234）'); return; }
+    if (e.target.closest('#createBtn')){
+      err = edValidate(ed, 'create'); if (err){ render(); el.querySelector('#createErr').scrollIntoView({block:'center'}); return; }
+      busy = true; render();
+      let p = null;
+      try{
+        const uid = await withTimeout(store.uid(), 15000);
+        const cid = rid(12), sec = rid(16); const adminKey = sha256hex(`${cid}:${sec}:${ed.pw}`);
+        const pub = edToPub(ed); pub.createdAt = store.now();
+        const groupKeys = {}; for (const gid of Object.keys(pub.groups)) groupKeys[gid] = rid(16);
+        const finish = () => { const mine = ls.getJSON('mycomps') || []; mine.unshift({cid, a: sec, name: pub.name, date: pub.date}); ls.setJSON('mycomps', mine.slice(0, 20));
+          ls.set('created:' + cid, '1'); if (tok === routeTok) location.hash = `a-${cid}-${sec}`; };
+        const failed = () => { busy = false; waitMsg = ''; err = 'コンペを作成できませんでした。もう一度お試しください。'; if (tok === routeTok) render(); };
+        p = store.set(`comps/${cid}`, {pub, private: {adminKey, groupKeys}, admins: {[uid]: {k: adminKey}}});
+        try{ await withTimeout(p, 20000); finish(); }
+        catch(x){ if (!(x && x.code === 'TIMEOUT')) throw x;
+          /* 送信は続いているので、作り直さずにそのまま待つ（二重作成を防ぐ） */
+          waitMsg = '通信に時間がかかっています。このままお待ちください（電波が戻ると自動で作成されます）。'; if (tok === routeTok) render();
+          p.then(finish, e => { console.error(e); failed(); }); }
+      }catch(x){ console.error(x); busy = false; waitMsg = ''; err = authSetupMsg(x) || (x && x.code === 'TIMEOUT' ? '通信できませんでした。電波の良い場所でもう一度お試しください。' : 'コンペを作成できませんでした。もう一度お試しください。'); if (tok === routeTok) render(); }
+      return; }
+    const r = await edClick(e, ed, null);
+    if (r) render(typeof r === 'string' ? r.slice(6) : null);
+  };
+  render();
+  return () => {};
+}
+
+/* =====================================================================
+   幹事の管理画面
+   ===================================================================== */
+function mountAdmin(el, cid, secFromUrl){
+  el.dataset.screen = 'admin';
+  const sec = secFromUrl || (((ls.getJSON('mycomps') || []).find(c => c && c.cid === cid) || {}).a || '');
+  const tok = routeTok; const alive = () => tok === routeTok;
+  let phase = 'load', pub = null, scores = {}, priv = null, tab = 'status', loginErr = '', busy = false;
+  let ed = null, se = null, fin = null, formMsg = null, baseSnap = '';
+  const snapOf = () => tab === 'settings' && ed ? JSON.stringify(ed) : tab === 'final' && fin ? JSON.stringify(fin) : tab === 'scores' && se ? JSON.stringify(se) : '';
+  const offs = [];
+  const hasScores = pid => Object.keys(scores[pid] || {}).some(k => /^h\d+$/.test(k));
+
+  function shell(body){ return pageHead('幹事の管理画面', pub ? pub.name : '', pub ? `<a class="bar-link" href="#v-${esc(cid)}">順位速報</a>` : '') + `<div class="wrap">${body}</div>`; }
+  function render(){
+    if (!alive()) return;
+    if (phase === 'load'){ el.innerHTML = shell(`<div class="pad center" style="color:var(--muted)">読み込み中…</div>`); return; }
+    if (phase === 'none'){ el.innerHTML = shell(`<div class="msg err">コンペが見つかりません。<small>URLが正しいか確認してください。</small></div>`); return; }
+    if (phase === 'nosec'){ el.innerHTML = shell(`<div class="msg err">管理画面のURLが正しくありません。<small>コンペ作成時に表示された「幹事用URL」を開いてください。</small></div>`); return; }
+    if (phase === 'setup'){ el.innerHTML = shell(`<div class="msg err">${esc(loginErr)}</div>`); return; }
+    if (phase === 'neterr'){ el.innerHTML = shell(`<div class="msg err">通信できませんでした。電波の良い場所で、もう一度読み込んでください。</div><button class="btn primary block" onclick="location.reload()">もう一度読み込む</button>`); return; }
+    if (phase === 'login'){
+      el.innerHTML = shell(`<form class="card" id="loginForm"><h2>幹事パスワード</h2><div class="field"><label for="pw">コンペ作成時に決めたパスワード</label><input class="inp" id="pw" type="password" autocomplete="current-password"></div>${loginErr ? `<div class="msg err" id="loginErr">${esc(loginErr)}</div>` : ''}<button class="btn primary block big" id="loginBtn" ${busy ? 'disabled' : ''}>${busy ? '確認中…' : '管理画面を開く'}</button></form>`);
+      return; }
+    let h = `<div class="atabs" role="tablist">` + [['status','進行状況<br>URL共有'],['scores','スコア<br>修正'],['settings','参加者<br>設定'],['final','最終結果<br>登録']].map(([k, l]) => `<button data-atab="${k}" class="${tab === k ? 'on' : ''}">${l}</button>`).join('') + `</div><div id="tabBody"></div><div style="height:calc(32px + var(--sab))"></div>`;
+    el.innerHTML = shell(h); renderTab();
+  }
+  function renderTab(focusId){
+    const body = el.querySelector('#tabBody'); if (!body || !alive()) return;
+    const msg = formMsg ? `<div class="msg ${formMsg.kind}" id="formMsg">${esc(formMsg.text)}</div>` : '';
+    if (tab === 'status') body.innerHTML = statusHtml();
+    else if (tab === 'scores') body.innerHTML = scoresHtml() + msg;
+    else if (tab === 'settings'){ if (!ed){ ed = edFromPub(pub); baseSnap = snapOf(); } body.innerHTML = `<div id="ed">${edHtml(ed, 'edit')}</div>${msg}<button class="btn primary block big" id="saveSettings" ${busy ? 'disabled' : ''}>${busy ? '保存中…' : '変更を保存'}</button>`; }
+    else if (tab === 'final'){ if (!fin){ fin = finFromPub(); baseSnap = snapOf(); } body.innerHTML = finalHtml() + msg + `<button class="btn primary block big" id="saveFinal" ${busy ? 'disabled' : ''}>${busy ? '保存中…' : '保存する'}</button>`; }
+    if (focusId){ const n = el.querySelector(`[data-pname="${focusId}"]`); if (n) n.focus(); }
+  }
+  function statusHtml(){
+    const justCreated = ls.get('created:' + cid) === '1';
+    const vUrl = viewerUrl(cid); const name = pub.name || 'ゴルフコンペ';
+    let h = justCreated ? `<div class="msg ok" id="createdMsg">コンペを作成しました。下のURLをLINEで送れば準備完了です。<small>この管理画面のURLと幹事パスワードは、幹事だけが控えてください。</small></div>` : '';
+    h += `<div class="card" id="viewerCard"><h2>順位速報URL（参加者全員に送る）</h2><div class="url" id="viewerUrl">${esc(vUrl)}</div><div class="row"><button class="btn" data-copy="${esc(vUrl)}">コピー</button><a class="btn line" target="_blank" rel="noopener" href="${esc(lineHref(`【${name}】LIVE順位速報はこちら\n${vUrl}`))}">LINEで送る</a><a class="btn" href="#v-${esc(cid)}">開く</a></div></div>`;
+    h += `<div class="card"><h2>各組の進行状況・入力用URL</h2><p class="hint" style="margin-bottom:6px">入力用URLは、その組の代表者だけに送ってください（その組のスコアだけ入力できます）。</p>`;
+    const all = [`【${name}】`, `■ 順位速報（全員）`, vUrl, ''];
+    for (const g of sortedGroups(pub)){
+      const pr = groupProgress(pub, scores, g); const k = priv && priv.groupKeys && priv.groupKeys[g.id]; const url = k ? groupUrl(cid, g.id, k) : '';
+      all.push(`■ ${g.n}組 スコア入力用（代表者のみ）`, url, '');
+      h += `<div class="card" style="background:var(--bg2);margin:10px 0" data-gstatus="${g.n}"><div class="ghead"><b>${g.n}組</b><span class="hint">スタート ${startLabel(g.start)}</span></div>`
+        + `<div style="font-size:14px;color:var(--muted)">${pr.players.map(p => esc(p.name)).join('・')}</div>`
+        + `<div style="font-weight:700;margin-top:6px"><span class="num gdone" style="font-size:22px;color:var(--green)">${pr.done}</span> / 18 ホール終了${pr.done === 18 ? '　✓' : pr.next ? `<span class="hint">　次は${pr.next}番</span>` : ''}</div><div class="prog"><i style="width:${Math.round(pr.done / 18 * 100)}%"></i></div>`
+        + (pr.partial.length ? `<div class="msg warn" style="margin:6px 0">一部未入力：${pr.partial.map(x => x + '番').join('、')}</div>` : '')
+        + (url ? `<div class="url gurl">${esc(url)}</div><div class="row"><button class="btn" data-copy="${esc(url)}">コピー</button><a class="btn line" target="_blank" rel="noopener" href="${esc(lineHref(`【${name}】${g.n}組 スコア入力用URL（代表者の方のみ）\n${url}`))}">LINEで送る</a></div>` : `<div class="hint">入力用URLを取得できませんでした。ページを読み込み直してください。</div>`) + `</div>`;
+    }
+    h += `<button class="btn block" data-copy="${esc(all.join('\n'))}">全部のURLをまとめてコピー</button></div>`;
+    const aUrl = adminUrl(cid, sec);
+    h += `<div class="card" id="adminCard"><h2>幹事用URL（他の人には送らない）</h2><div class="url" id="adminUrl">${esc(aUrl)}</div><div class="row"><button class="btn" data-copy="${esc(aUrl)}">コピー</button><a class="btn line" target="_blank" rel="noopener" href="${esc(lineHref(`【${name}】幹事用の管理画面（自分用メモ）\n${aUrl}`))}">LINEで自分用に保存</a></div><p class="hint" style="margin-top:10px">この管理画面を開くには、<b>このURL</b>と<b>幹事パスワード</b>の両方が必要です。なくすと管理画面に入れなくなるため、必ず控えてください（LINEの「Keepメモ」などに送っておくと安心です）。</p></div>`;
+    return h;
+  }
+  function scoresHtml(){
+    const players = sortedPlayers(pub); const pars = parsOf(pub);
+    if (!se || !players.some(p => p.id === se.pid)) se = null;
+    let h = `<div class="card"><h2>スコア修正</h2><div class="field"><label for="sePlayer">修正する参加者</label><select class="inp" id="sePlayer"><option value="">選んでください</option>`
+      + sortedGroups(pub).map(g => `<optgroup label="${g.n}組">` + players.filter(p => p.g === g.id).map(p => `<option value="${esc(p.id)}" ${se && se.pid === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('') + `</optgroup>`).join('') + `</select></div>`;
+    if (se){
+      h += `<p class="hint" style="margin-bottom:8px">空欄は「未入力」です（計算に含めません）。</p><div class="sgrid">` + Array.from({length:18}, (_, i) => `<div class="scell"><span><b>${i+1}番</b>PAR ${pars[i]}</span><input class="num" data-seh="${i+1}" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" value="${esc(se.vals[i+1] ?? '')}" aria-label="${i+1}番ホールの打数"></div>`).join('') + `</div>`
+        + `<button class="btn primary block big" id="saveScores" style="margin-top:14px" ${busy ? 'disabled' : ''}>${busy ? '保存中…' : 'この内容で保存'}</button>`;
+    }
+    return h + `</div>`;
+  }
+  function finFromPub(){ const f = pub.final || {}; const rows = {};
+    for (const p of sortedPlayers(pub)){ const r = (f.rows || {})[p.id] || {}; rows[p.id] = {rank: r.rank ? String(r.rank) : '', net: r.net !== undefined && r.net !== null ? String(r.net) : ''}; }
+    return {closed: !!f.closed, published: !!f.published, rows}; }
+  function finalHtml(){
+    const b = computeBoard(pub, scores); const gross = Object.fromEntries([...b.ranked, ...b.rest].map(r => [r.id, r]));
+    let h = `<div class="card"><h2>グロス順位の確定</h2><p class="hint">全員が18ホールを入力すると、順位速報は自動で「最終結果」になります。</p>
+      <label class="chk"><input type="checkbox" id="finClosed" ${fin.closed ? 'checked' : ''}><span>ラウンド終了として表示する<small>途中棄権などで18ホール入力できない人がいる場合に使います。18ホール未完了の人は順位対象外になります。</small></span></label></div>`;
+    h += `<div class="card"><h2>新ペリアの最終順位</h2><p class="hint" style="margin-bottom:8px">ゴルフ場で集計された結果を入力してください。順位は必須、NETは任意です。</p><div class="frow h"><span>名前（グロス）</span><span class="center">順位</span><span class="center">NET</span></div>`;
+    for (const p of sortedPlayers(pub)){ const r = fin.rows[p.id] || {rank:'', net:''}; const gr = gross[p.id];
+      h += `<div class="frow"><span><b>${esc(p.name)}</b> <span class="hint">${gr && gr.holes === 18 ? gr.strokes : '–'}</span></span><input class="inp num" data-frank="${esc(p.id)}" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="${esc(r.rank)}" aria-label="${esc(p.name)} の順位"><input class="inp num" data-fnet="${esc(p.id)}" type="text" inputmode="decimal" maxlength="6" value="${esc(r.net)}" aria-label="${esc(p.name)} のNET"></div>`; }
+    h += `<label class="chk"><input type="checkbox" id="finPublished" ${fin.published ? 'checked' : ''}><span>順位速報ページに公開する<small>公開すると、参加者の画面に「新ペリア 最終順位」が表示されます。</small></span></label></div>`;
+    return h;
+  }
+  async function act(fn, okText, after){
+    busy = true; formMsg = null; renderTab();
+    let p; try{ p = fn(); }catch(e){ p = Promise.reject(e); }
+    const end = (kind, text) => { busy = false; formMsg = {kind, text}; if (kind === 'ok' && after) after();
+      if (alive()){ renderTab(); const m = el.querySelector('#formMsg'); if (m) m.scrollIntoView({block: 'center'}); } };
+    try{ await withTimeout(p, 15000); end('ok', '✓ ' + okText); }
+    catch(x){ console.error(x);
+      if (x && x.code === 'TIMEOUT'){ /* 送信は続いているので、結果が出るまで待つ */
+        formMsg = {kind: 'warn', text: 'まだ保存を確認できていません（通信待ち）。電波が戻ると自動で保存されます。このページは閉じないでください。'};
+        if (alive()){ renderTab(); const m = el.querySelector('#formMsg'); if (m) m.scrollIntoView({block: 'center'}); }
+        p.then(() => end('ok', '✓ ' + okText), e => { console.error(e); end('err', isDenied(e) ? '保存できませんでした（権限がありません）。ページを読み込み直してください。' : '保存できませんでした。もう一度お試しください。'); });
+        return; }
+      end('err', isDenied(x) ? '保存できませんでした（権限がありません）。ページを読み込み直してください。' : '保存できませんでした。もう一度お試しください。'); }
+  }
+  el.onsubmit = async e => {
+    if (e.target.id !== 'loginForm') return; e.preventDefault(); if (busy) return;
+    const pw = el.querySelector('#pw').value; if (!pw){ loginErr = 'パスワードを入力してください。'; render(); return; }
+    busy = true; loginErr = ''; render();
+    try{ const uid = await withTimeout(store.uid(), 15000); const k = sha256hex(`${cid}:${sec}:${pw}`);
+      const grant = () => withTimeout(store.set(P(cid, 'admins/' + uid), {k}), 15000);
+      try{ await grant(); }catch(e1){ if (!isDenied(e1)) throw e1; await new Promise(r => setTimeout(r, 900)); await grant(); }
+      busy = false; await enter();
+    }catch(x){ console.error(x); busy = false; loginErr = isDenied(x) ? 'パスワードが違います。' : (authSetupMsg(x) || '通信できませんでした。もう一度お試しください。'); if (alive()) render(); }
+  };
+  el.oninput = e => { const t = e.target;
+    if (tab === 'settings' && ed) edInput(e, ed);
+    if (t.dataset.seh && se) se.vals[t.dataset.seh] = t.value;
+    if (t.dataset.frank && fin) fin.rows[t.dataset.frank].rank = t.value;
+    if (t.dataset.fnet && fin) fin.rows[t.dataset.fnet].net = t.value; };
+  el.onchange = e => { const t = e.target;
+    if (t.id === 'sePlayer'){ formMsg = null; if (!t.value) se = null; else { const vals = {}; for (let h = 1; h <= 18; h++){ const v = scoreOf(scores, t.value, h); vals[h] = v === null ? '' : String(v); } se = {pid: t.value, vals, orig: {...vals}}; } baseSnap = snapOf(); renderTab(); return; }
+    if (t.id === 'finClosed' && fin){ fin.closed = t.checked; return; }
+    if (t.id === 'finPublished' && fin){ fin.published = t.checked; return; }
+    if (tab === 'settings' && ed && edChange(e, ed)) renderTab(); };
+  el.onclick = async e => {
+    const t = e.target; let b;
+    if ((b = t.closest('[data-copy]'))){ copyText(b.dataset.copy); return; }
+    if (phase !== 'ok' || busy) return;
+    if ((b = t.closest('[data-atab]'))){
+      if (b.dataset.atab === tab) return;
+      if (snapOf() !== baseSnap && !(await ask('保存していない変更があります。\n破棄して移動しますか？', '破棄して移動', '戻る'))) return;
+      tab = b.dataset.atab; formMsg = null; ed = null; fin = null; se = null; baseSnap = ''; if (tab !== 'status') ls.del('created:' + cid); render(); return; }
+    if (t.closest('#saveScores') && se){
+      const upd = {}; const bad = [];
+      for (let h = 1; h <= 18; h++){ const raw = String(se.vals[h] ?? '').replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).trim();
+        if (raw === String(se.orig[h] ?? '')) continue;          /* 触っていないホールは書き換えない（代表者の入力を上書きしない） */
+        if (raw === ''){ upd['h'+h] = null; continue; }
+        const v = /^\d+$/.test(raw) ? parseInt(raw, 10) : NaN; if (!(v >= 1 && v <= MAX_STROKES)){ bad.push(h); continue; }
+        upd['h'+h] = v; }
+      if (bad.length){ formMsg = {kind: 'err', text: `${bad.map(x => x + '番').join('、')} の打数を確認してください（1〜${MAX_STROKES}の数字）。`}; renderTab(); return; }
+      if (!Object.keys(upd).length){ formMsg = {kind: 'ok', text: '変更はありません。'}; renderTab(); return; }
+      upd.u = store.now(); const pid = se.pid; const nm = (pub.players[pid] || {}).name || '';
+      const saved = {...se.vals};
+      await act(() => store.update(P(cid, 'scores/' + pid), upd), `${nm} のスコアを保存しました。順位表に反映されます。`, () => { if (se && se.pid === pid){ for (let h = 1; h <= 18; h++) se.orig[h] = String(saved[h] ?? '').trim(); baseSnap = snapOf(); } }); return; }
+    if (t.closest('#saveSettings') && ed){
+      const er = edValidate(ed, 'edit'); if (er){ formMsg = {kind: 'err', text: er}; renderTab(); el.querySelector('#formMsg').scrollIntoView({block: 'center'}); return; }
+      const np = edToPub(ed); const upd = {'pub/name': np.name, 'pub/date': np.date, 'pub/course': np.course, 'pub/pars': np.pars, 'pub/groups': np.groups, 'pub/players': np.players};
+      for (const gid of Object.keys(np.groups)) if (!(priv && priv.groupKeys && priv.groupKeys[gid])) upd['private/groupKeys/' + gid] = rid(16);
+      for (const gid of Object.keys((priv && priv.groupKeys) || {})) if (!np.groups[gid]) upd['private/groupKeys/' + gid] = null;
+      for (const pid of Object.keys(pub.players || {})) if (!np.players[pid]){ upd['scores/' + pid] = null; if (pub.final && pub.final.rows && pub.final.rows[pid]) upd['pub/final/rows/' + pid] = null; }
+      await act(() => store.update(`comps/${cid}`, upd), '変更を保存しました。', () => { const mine = ls.getJSON('mycomps') || []; const m = mine.find(c => c.cid === cid); if (m){ m.name = np.name; m.date = np.date; ls.setJSON('mycomps', mine); } ed = null; });
+      return; }
+    if (t.closest('#saveFinal') && fin){
+      const rows = {}; const bad = [];
+      for (const p of sortedPlayers(pub)){ const r = fin.rows[p.id] || {}; const rk = String(r.rank || '').trim(); const net = String(r.net || '').trim().replace(/[０-９．]/g, c => c === '．' ? '.' : String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+        if (rk === '' && net === '') continue;
+        if (!/^\d+$/.test(rk) || +rk < 1 || (net !== '' && !/^\d{1,3}(\.\d{1,2})?$/.test(net))){ bad.push(p.name); continue; }
+        rows[p.id] = net === '' ? {rank: +rk} : {rank: +rk, net}; }
+      if (bad.length){ formMsg = {kind: 'err', text: `入力を確認してください：${bad.join('、')}（順位は数字、NETは 72.4 のような数字）`}; renderTab(); return; }
+      if (fin.published && !Object.keys(rows).length){ formMsg = {kind: 'err', text: '公開するには、新ペリアの順位を入力してください。'}; renderTab(); return; }
+      await act(() => store.set(P(cid, 'pub/final'), {closed: fin.closed, published: fin.published, rows}), '保存しました。順位速報に反映されます。', () => { baseSnap = snapOf(); }); return; }
+    if (tab === 'settings' && ed){ const r = await edClick(e, ed, hasScores); if (r) renderTab(typeof r === 'string' ? r.slice(6) : null); }
+  };
+  async function enter(){
+    priv = await withTimeout(store.get(P(cid, 'private')), 15000);
+    if (!alive()) return;
+    phase = 'ok';
+    offs.push(store.watch(P(cid, 'pub'), v => { if (!v) return; pub = v; if (tab === 'status') render(); else { const t = el.querySelector('.bar-s'); if (t) t.textContent = pub.name || ''; } }, () => {}));
+    offs.push(store.watch(P(cid, 'scores'), v => { scores = v || {}; if (tab === 'status') renderTab(); }, () => {}));
+    offs.push(store.watch(P(cid, 'private'), v => { if (v){ priv = v; if (tab === 'status') renderTab(); } }, () => {}));
+    render();
+  }
+  (async () => {
+    try{
+      pub = await withTimeout(store.get(P(cid, 'pub')), 15000);
+      if (!alive()) return;
+      if (!pub){ phase = 'none'; render(); return; }
+      if (!sec){ phase = 'nosec'; render(); return; }
+      try{ await withTimeout(store.uid(), 15000); }catch(x){ const m = authSetupMsg(x); if (m && alive()){ phase = 'setup'; loginErr = m; render(); return; } throw x; }
+      try{ await enter(); }catch(x){ if (!alive()) return; if (isDenied(x)){ phase = 'login'; render(); } else throw x; }
+    }catch(x){ console.error(x); if (!alive()) return; phase = 'neterr'; render(); }
+  })();
+  render();
+  return () => { offs.forEach(f => f()); };
+}
+
+boot();
+</script>
+</body>
+</html>
