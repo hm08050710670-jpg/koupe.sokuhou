@@ -111,7 +111,22 @@ textarea.inp{min-height:180px;line-height:1.6}
 .lbh,.lbr{display:grid;grid-template-columns:58px minmax(0,1fr) 62px 78px;align-items:center;column-gap:6px}
 .lbh{font-size:12px;color:var(--muted);padding:6px 0;border-bottom:1px solid var(--line)}
 .lbh span:nth-child(3),.lbh span:nth-child(4){text-align:right}
-.lbr{padding:10px 0;border-bottom:1px solid var(--line);min-height:58px}
+.lbr{padding:10px 0;border-bottom:1px solid var(--line);min-height:58px;position:relative}
+/* 順位速報：順位が入れ替わるとき、行が新しい位置へ動く。スコアが変わった行は一瞬色がつく */
+.lbr.mvup{z-index:2;background:#fff;box-shadow:0 6px 16px rgba(35,24,21,.14);border-radius:8px}
+.lbr.mvdn{z-index:1;background:#fff}
+.lbr.upd{animation:updFlash 2.6s ease-out}
+@keyframes updFlash{0%,30%{background:var(--gold-soft)}100%{background:rgba(246,239,221,0)}}
+/* ラウンド中の順位表：「現在」は細い縦線で区切って、小さくまとめる（スコアを大きく見せる） */
+.inplay .lbh,.inplay .lbr{grid-template-columns:58px minmax(0,1fr) 68px 48px;column-gap:0}
+.inplay .lbr .sc,.inplay .lbh span:nth-child(3){padding-right:9px}
+.inplay .lbh span:nth-child(4){text-align:center}
+.inplay .lbr .hl{align-self:stretch;display:flex;flex-direction:column;justify-content:center;text-align:center;border-left:1px solid var(--line);padding-left:3px;font-size:10px;font-weight:500;line-height:1.3}
+.inplay .lbr .hl b{font-size:13px;font-weight:800}
+.inplay .lbr .hl small{font-size:10px}
+.inplay .pg{white-space:nowrap}
+.mv{font-style:normal;font-size:12px;font-weight:800;margin-left:5px;white-space:nowrap}
+.mv.up{color:var(--red)} .mv.dn{color:#3B6FB5}
 .rk{display:inline-flex;align-items:center;justify-content:center;min-width:50px;height:34px;border-radius:999px;font-weight:800;font-size:17px;color:var(--ink)}
 .rk small{font-size:12px;font-weight:700;margin-left:1px}
 .rk.r1{background:var(--gold);color:#fff}
@@ -301,19 +316,19 @@ ul.plain li{padding:10px 0;border-bottom:1px solid var(--line)}
 <!-- ▼▼ Firebase の接続設定（書き換えるのはここだけ）。すべて空のままならデモモードで起動します ▼▼ -->
 <script id="fbconfig">
 window.FIREBASE_CONFIG = {
-  "apiKey": "",
-  "authDomain": "",
-  "databaseURL": "",
-  "projectId": "",
-  "storageBucket": "",
-  "messagingSenderId": "",
-  "appId": ""
+  "apiKey": "AIzaSyBDw7fLnVs8harHJTUoDn6H75WiZ19RMzI",
+  "authDomain": "golf-guts-258ae.firebaseapp.com",
+  "databaseURL": "https://golf-guts-258ae-default-rtdb.asia-southeast1.firebasedatabase.app",
+  "projectId": "golf-guts-258ae",
+  "storageBucket": "golf-guts-258ae.firebasestorage.app",
+  "messagingSenderId": "637159781191",
+  "appId": "1:637159781191:web:32c36ec33779f08e079262"
 };
 </script>
 <!-- ▲▲ 接続設定ここまで ▲▲ -->
 <script type="module">
 /* =====================================================================
-   ゴルフコンペ LIVE順位速報  v1.9（結果発表に「GUTS」王冠の優勝マーク・幹事用URLの枠を濃いブラウンに）
+   ゴルフコンペ LIVE順位速報  v1.11.1（デモモードでURLを共有できない理由を画面に表示）
    画面: ホーム(作成) / 順位速報 #v-{コンペID} / 結果発表 #r-{コンペID} / スコア入力 #g-{コンペID}-{組ID}-{キー} / 幹事 #a-{コンペID}-{幹事キー}
    ===================================================================== */
 const FB_VER = '10.14.1';
@@ -407,11 +422,13 @@ function sortedPlayers(pub, gid){
 /* 未入力ホールは計算に含めない（0打扱いにしない） */
 function computeBoard(pub, scores){
   const pars = parsOf(pub); let lastU = 0;
+  const starts = Object.fromEntries(sortedGroups(pub).map(g => [g.id, g.start]));
   const rows = sortedPlayers(pub).map(p => {
     let holes = 0, strokes = 0, par = 0;
     for (let h = 1; h <= 18; h++){ const v = scoreOf(scores, p.id, h); if (v !== null){ holes++; strokes += v; par += pars[h-1]; } }
     const u = scores && scores[p.id] && scores[p.id].u; if (typeof u === 'number' && u > lastU) lastU = u;
-    return {...p, holes, strokes, par, diff: strokes - par};
+    const next = holeOrder(starts[p.g] || 1).find(h => scoreOf(scores, p.id, h) === null) || null;   /* いまプレー中のホール（その組のスタート順で、まだ入力のない最初のホール） */
+    return {...p, holes, strokes, par, diff: strokes - par, next};
   });
   const allDone = rows.length > 0 && rows.every(r => r.holes === 18);
   const closed = !!(pub && pub.final && pub.final.closed);
@@ -628,6 +645,8 @@ function fitFirstView(root){
 }
 /* コンペ名を、1行に収まる範囲でできるだけ大きく表示する（長い名前は自動で少し小さくし、それでも入らなければ折り返す） */
 function fitTitle(root){ fitLine(root.querySelector('.bar-t'), 21); }
+/* デモモードでは、コンペのデータは作成した端末（同じブラウザ）の中にしか無い。ほかの端末でURLを開くと「見つからない」ので、理由を伝える */
+const demoWhy = () => store && store.mode === 'demo' ? `<div class="msg warn" id="demoWhy">いまは「デモモード」です<small>デモモードでは、コンペのデータは作成した端末（同じブラウザ）の中にだけ保存されます。そのため、LINEなどで送ったURLをほかの端末や別のブラウザで開いても表示できません。みんなで使うには、Firebase の接続設定が必要です。</small></div>` : '';
 const simplePage = (title, bodyHtml) => `${pageHead(title)}<div class="wrap">${bodyHtml}</div>`;
 
 async function boot(){
@@ -682,13 +701,14 @@ function route(){
 function mountViewer(el, cid){
   el.dataset.screen = 'viewer';
   let pub, scores = {}, conn = false, got = false, slow = false, failed = false, tab = null;
-  if (memo[cid] && 'pub' in memo[cid]){ pub = memo[cid].pub; got = true; scores = memo[cid].scores || {}; }
+  const tok = routeTok; let gotScores = false, ready = false, lastRanks = null; const moves = {};   /* moves：直前の更新で順位が上下した人（▲▼を少しの間だけ表示） */
+  if (memo[cid] && 'pub' in memo[cid]){ pub = memo[cid].pub; got = true; scores = memo[cid].scores || {}; gotScores = 'scores' in memo[cid]; }
   const repHash = ls.get('rep:' + cid);
   const unsent = () => { if (!repHash) return false; const o = ls.getJSON(`pend:${cid}:${repHash.split('-')[2]}`); return !!o && Object.keys(o).length > 0; };
-  const render = () => {
+  const renderCore = () => {
     if (failed){ el.innerHTML = simplePage('LIVE 順位速報', `<div class="msg err">順位表を読み込めませんでした。URLが正しいか確認してください。</div>`); return; }
     if (!got){ el.innerHTML = simplePage('LIVE 順位速報', `<div class="pad center" style="color:var(--muted)">読み込み中…${slow ? '<div class="msg warn" style="margin-top:16px">通信に時間がかかっています。電波の良い場所でお待ちください。</div>' : ''}</div>`); return; }
-    if (!pub){ el.innerHTML = simplePage('LIVE 順位速報', `<div class="msg err">コンペが見つかりません。<small>URLが正しいか、幹事に確認してください。</small></div>`); return; }
+    if (!pub){ el.innerHTML = simplePage('LIVE 順位速報', `<div class="msg err">コンペが見つかりません。<small>URLが正しいか、幹事に確認してください。</small></div>${demoWhy()}`); return; }
     const b = computeBoard(pub, scores);
     const fin = pub.final || {}; const finRows = fin.rows || {};
     const hasPeoria = !!fin.published && Object.values(finRows).some(r => r && r.rank);
@@ -716,19 +736,25 @@ function mountViewer(el, cid){
       h += `</div>`;
     } else {
       h += b.isFinal ? `<p class="note">${b.allDone ? '全員が18ホールを終了しました。' : 'ラウンド終了。'}グロス（実際の打数）の最終結果です。</p>`
-        : `<p class="note">プレー途中の<b>暫定順位</b>です。入力済みホールのPARとの差で並べています（組によって終了ホール数が違います）。</p>`;
-      h += `<div class="lb" id="board"><div class="lbh"><span>順位</span><span>名前</span><span>スコア</span><span>終了</span></div>`;
+        : `<p class="note">プレー途中の<b>暫定順位</b>です。入力済みホールのPARとの差で並べています。「現在」は、いまプレー中のホールです。</p>`;
+      h += `<div class="lb ${b.isFinal ? '' : 'inplay'}" id="board"><div class="lbh"><span>順位</span><span>名前</span><span>スコア</span><span>${b.isFinal ? '終了' : '現在'}</span></div>`;
+      { const now = {}; for (const r of b.ranked) now[r.id] = r.rank;
+        if (ready && lastRanks) for (const id of Object.keys(now)) if (lastRanks[id] && lastRanks[id] !== now[id]){ moves[id] = {d: lastRanks[id] - now[id], t: Date.now()};
+          setTimeout(() => { if (tok !== routeTok || !moves[id] || Date.now() - moves[id].t < 11900) return; delete moves[id]; const n = el.querySelector(`.lbr[data-pid="${id}"] .mv`); if (n) n.remove(); }, 12000); }
+        lastRanks = now; }
+      const mv = id => { const m = moves[id]; return m && Date.now() - m.t < 12000 ? `<i class="mv ${m.d > 0 ? 'up' : 'dn'}">${m.d > 0 ? '▲' : '▼'}${Math.abs(m.d)}</i>` : ''; };
       if (!b.ranked.length) h += `<div class="pad center" style="color:var(--muted)">${b.isFinal ? '18ホールを終了した人がまだいません。' : 'まだスコアの入力はありません。<br>入力されると自動で表示されます。'}</div>`;
       for (const r of b.ranked){
-        h += `<div class="lbr ${r.rank <= 3 ? 'top' : ''}" data-pid="${esc(r.id)}" data-rank="${r.rank}" data-diff="${r.diff}" data-holes="${r.holes}">`
+        h += `<div class="lbr ${r.rank <= 3 ? 'top' : ''}" data-pid="${esc(r.id)}" data-rank="${r.rank}" data-diff="${r.diff}" data-holes="${r.holes}" data-next="${r.next || ''}">`
           + `<span><span class="rk ${r.rank <= 3 ? 'r'+r.rank : ''}">${r.rank}<small>位</small></span></span>`
-          + `<span class="pn">${nm(r.name)} <span class="pg">${r.gn}組</span></span>`
+          + `<span class="pn">${nm(r.name)} <span class="pg">${r.gn}組</span>${mv(r.id)}</span>`
           + `<span class="sc ${diffClass(r.diff)} num">${fmtDiff(r.diff)}${b.isFinal ? `<small>${r.strokes}打</small>` : ''}</span>`
-          + (r.holes === 18 ? `<span class="hl fin">18ホール<br>終了</span>` : `<span class="hl num"><b>${r.holes}</b>ホール<br>終了</span>`) + `</div>`;
+          + (b.isFinal ? (r.holes === 18 ? `<span class="hl fin">18ホール<br>終了</span>` : `<span class="hl num"><b>${r.holes}</b>ホール<br>終了</span>`)
+            : r.holes === 18 || !r.next ? `<span class="hl fin num"><span><b>終了</b></span><small>18H</small></span>` : `<span class="hl num"><span><b>${r.next}</b>番</span><small>${r.holes}H終了</small></span>`) + `</div>`;
       }
       h += `</div>`;
       if (b.rest.length){
-        h += `<div class="sect">${b.isFinal ? '18ホール未完了（順位対象外）' : 'スタート前'}</div><div id="restBoard">`;
+        h += `<div class="sect">${b.isFinal ? '18ホール未完了（順位対象外）' : 'スタート前'}</div><div id="restBoard" class="${b.isFinal ? '' : 'inplay'}">`;
         for (const r of b.rest) h += `<div class="lbr wait" data-pid="${esc(r.id)}" data-holes="${r.holes}"><span><span class="rk none">–</span></span><span class="pn">${nm(r.name)} <span class="pg">${r.gn}組</span></span><span class="sc num" style="font-size:16px;color:var(--muted)">${r.holes ? fmtDiff(r.diff) : ''}</span><span class="hl num">${r.holes ? `<b>${r.holes}</b>ホール<br>終了` : '未入力'}</span></div>`;
         h += `</div>`;
       }
@@ -738,9 +764,28 @@ function mountViewer(el, cid){
     h += `</div>`;
     el.innerHTML = h; fitTitle(el);
   };
+  /* 描き直しの前後で各行の位置を比べ、動いた行を元の位置から新しい位置へすべらせる（最初の表示では動かさない） */
+  const render = () => {
+    const sel = '#board .lbr[data-pid], #restBoard .lbr[data-pid]'; const before = new Map();
+    /* 位置は順位表の上端からの距離で比べる（「通信が切れています」の帯が出入りして表全体がずれただけのときは、動かさない） */
+    const base = () => { const b = el.querySelector('#board'); return b ? b.getBoundingClientRect().top : 0; }; const b0 = base();
+    if (ready) el.querySelectorAll(sel).forEach(n => before.set(n.dataset.pid, {top: n.getBoundingClientRect().top - b0, diff: n.dataset.diff, holes: n.dataset.holes}));
+    renderCore();
+    if (before.size){
+      const calm = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); const moved = []; const b1 = base();
+      el.querySelectorAll(sel).forEach(n => { const o = before.get(n.dataset.pid); if (!o) return;
+        if (o.diff !== n.dataset.diff || o.holes !== n.dataset.holes) n.classList.add('upd');
+        const dy = o.top - (n.getBoundingClientRect().top - b1); if (calm || Math.abs(dy) < 2) return;
+        n.style.transition = 'none'; n.style.transform = `translateY(${dy}px)`; n.classList.add(dy > 0 ? 'mvup' : 'mvdn'); moved.push(n); });
+      if (moved.length){ void el.offsetHeight;
+        requestAnimationFrame(() => moved.forEach(n => { n.style.transition = 'transform .9s cubic-bezier(.2,.8,.2,1)'; n.style.transform = '';
+          n.addEventListener('transitionend', () => { n.classList.remove('mvup', 'mvdn'); n.style.transition = ''; }, {once: true}); })); }
+    }
+    if (got && gotScores) ready = true;
+  };
   const offs = [
     store.watch(P(cid, 'pub'), v => { pub = v; got = true; memoSet(cid, 'pub', v); render(); }, () => { failed = true; render(); }),
-    store.watch(P(cid, 'scores'), v => { scores = v || {}; memoSet(cid, 'scores', scores); render(); }, () => {}),
+    store.watch(P(cid, 'scores'), v => { scores = v || {}; gotScores = true; memoSet(cid, 'scores', scores); render(); }, () => {}),
     store.onConn(c => { conn = c; render(); })
   ];
   const t = setTimeout(() => { if (!got){ slow = true; render(); } }, 8000);
@@ -778,7 +823,7 @@ function mountResult(el, cid, wantSample){
     if (!alive()) return;
     if (failed){ el.innerHTML = simplePage('結果発表', `<div class="msg err">結果を読み込めませんでした。URLが正しいか確認してください。</div>`); return; }
     if (!got){ el.innerHTML = simplePage('結果発表', `<div class="pad center" style="color:var(--muted)">読み込み中…</div>`); return; }
-    if (!pub){ el.innerHTML = simplePage('結果発表', `<div class="msg err">コンペが見つかりません。<small>URLが正しいか、幹事に確認してください。</small></div>`); return; }
+    if (!pub){ el.innerHTML = simplePage('結果発表', `<div class="msg err">コンペが見つかりません。<small>URLが正しいか、幹事に確認してください。</small></div>${demoWhy()}`); return; }
     if (sample === 'check'){ el.innerHTML = simplePage('結果発表', `<div class="pad center" style="color:var(--muted)">読み込み中…</div>`); return; }
     if (sample){ const k = Object.keys(pub.players || {}).sort().join() + '|' + pub.pars; if (k !== sampleKey){ sampleKey = k; sampleData = makeSampleResult(pub, cid); } }
     const m = sample ? resultModel(sampleData.pub, sampleData.scores, null) : resultModel(pub, scores, privFinal); const peo = m.mode === 'peoria';
@@ -902,7 +947,7 @@ function mountRep(el, cid, gid, key){
     if (phase === 'auth'){ el.innerHTML = simplePage('スコア入力', `<div class="pad center" style="color:var(--muted)">確認中…${slow ? '<div class="msg warn" style="margin-top:16px" id="slowMsg">通信を待っています。電波が戻ると自動で開きます。</div>' : ''}</div>`); return; }
     if (phase === 'bad'){ el.innerHTML = simplePage('スコア入力', `<div class="msg err">${esc(failMsg)}</div><button class="btn primary block" onclick="location.reload()">もう一度読み込む</button>`); return; }
     if (!gotPub || !gotScores){ el.innerHTML = simplePage('スコア入力', `<div class="pad center" style="color:var(--muted)">読み込み中…</div>`); return; }
-    if (!pub || !g || !members().length){ el.innerHTML = simplePage('スコア入力', `<div class="msg err">この組の情報が見つかりません。<small>幹事に入力用URLを確認してください。</small></div>`); return; }
+    if (!pub || !g || !members().length){ el.innerHTML = simplePage('スコア入力', `<div class="msg err">この組の情報が見つかりません。<small>幹事に入力用URLを確認してください。</small></div>${pub ? '' : demoWhy()}`); return; }
     const pars = parsOf(pub); const o = order();
     let h = pageHead(`${g.n}組 スコア入力`, pub.name, `<a class="bar-link" href="#v-${esc(cid)}">順位を見る</a>`);
     h += `<div id="offWrap">${offHtml()}</div>`;
@@ -1221,7 +1266,7 @@ function mountAdmin(el, cid, secFromUrl){
   function render(){
     if (!alive()) return;
     if (phase === 'load'){ el.innerHTML = shell(`<div class="pad center" style="color:var(--muted)">読み込み中…</div>`); return; }
-    if (phase === 'none'){ el.innerHTML = shell(`<div class="msg err">コンペが見つかりません。<small>URLが正しいか確認してください。</small></div>`); return; }
+    if (phase === 'none'){ el.innerHTML = shell(`<div class="msg err">コンペが見つかりません。<small>URLが正しいか確認してください。</small></div>${demoWhy()}`); return; }
     if (phase === 'nosec'){ el.innerHTML = shell(`<div class="msg err">管理画面のURLが正しくありません。<small>コンペ作成時に表示された「幹事用URL」を開いてください。</small></div>`); return; }
     if (phase === 'setup'){ el.innerHTML = shell(`<div class="msg err">${esc(loginErr)}</div>`); return; }
     if (phase === 'neterr'){ el.innerHTML = shell(`<div class="msg err">通信できませんでした。電波の良い場所で、もう一度読み込んでください。</div><button class="btn primary block" onclick="location.reload()">もう一度読み込む</button>`); return; }
@@ -1243,7 +1288,8 @@ function mountAdmin(el, cid, secFromUrl){
   function statusHtml(){
     const justCreated = ls.get('created:' + cid) === '1';
     const vUrl = viewerUrl(cid); const name = pub.name || 'ゴルフコンペ';
-    let h = justCreated ? `<div class="msg ok" id="createdMsg">コンペを作成しました。下のURLをLINEで送れば準備完了です。<small>この管理画面のURLと幹事パスワードは、幹事だけが控えてください。</small></div>` : '';
+    let h = store.mode === 'demo' ? `<div class="msg warn" id="demoWarn">デモモードのため、下のURLを送っても相手の画面では開けません<small>この端末の中だけで動いています（操作や見た目の確認用）。みんなで使うには、Firebase の接続設定を入れた index.html に差し替えてください。</small></div>` : '';
+    h += justCreated && store.mode !== 'demo' ? `<div class="msg ok" id="createdMsg">コンペを作成しました。下のURLをLINEで送れば準備完了です。<small>この管理画面のURLと幹事パスワードは、幹事だけが控えてください。</small></div>` : '';
     h += `<div class="card" id="viewerCard"><h2>順位速報URL（参加者全員に送る）</h2><div class="url" id="viewerUrl">${esc(vUrl)}</div><div class="row"><button class="btn" data-copy="${esc(vUrl)}">コピー</button><a class="btn line" target="_blank" rel="noopener" href="${esc(lineHref(`【${name}】LIVE順位速報はこちら\n${vUrl}`))}">LINEで送る</a><a class="btn" href="#v-${esc(cid)}">開く</a></div></div>`;
     h += `<div class="card" id="previewCard"><h2>お客様に見える画面を確認する</h2><div class="row"><a class="btn" href="#v-${esc(cid)}">順位速報</a><a class="btn" href="#r-${esc(cid)}">結果発表</a><button class="btn" data-sampleresult>結果発表の見本</button></div><p class="hint" style="margin-top:8px">「結果発表の見本」は、実際の参加者名に仮のスコアをあてはめて、当日の結果発表がどう見えるかを確認できます（幹事にだけ表示。データは保存されません）。</p></div>`;
     h += `<div class="card"><h2>各組の進行状況・入力用URL</h2><p class="hint" style="margin-bottom:6px">入力用URLは、その組の代表者だけに送ってください（その組のスコアだけ入力できます）。</p>`;
