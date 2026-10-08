@@ -10,6 +10,7 @@
 <style>
 :root{
   /* GOLF GUTS のロゴの色：濃いブラウン（文字）とクリーム（地色）を基調にしています */
+  --gg:linear-gradient(135deg,#9C7A2B 0%,#EBD596 38%,#B8923B 62%,#F6E9C4 100%); --gs:linear-gradient(135deg,#7C8186 0%,#E9EBED 38%,#A4A9AE 62%,#F4F5F6 100%); --gb:linear-gradient(135deg,#7A4A2A 0%,#DDAA84 38%,#A8683F 62%,#EECBAE 100%);   /* 金・銀・銅 */
   --main:#231815; --main2:#4A3B35; --main-soft:#EFE9E0; --main-line:#D8CEC2;
   --ok:#1B6B4A; --ok-soft:#E8F3EC; --ok-line:#C4DFD0;   /* 「保存できた」を示す状態色 */
   --gold:#A9853A; --gold-soft:#F6EFDD;
@@ -182,12 +183,94 @@ textarea.inp{min-height:180px;line-height:1.6}
 .scell span{display:block;font-size:12px;color:var(--muted);line-height:1.4;white-space:nowrap;margin-bottom:4px}
 .scell span b{font-size:15px;color:var(--ink);margin-right:4px}
 .scell input{display:block;width:100%;height:46px;border:1px solid #CFC6BA;border-radius:8px;text-align:center;font-size:22px;font-weight:700;padding:0}
-.frow{display:grid;grid-template-columns:minmax(0,1fr) 70px 84px;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
-.frow .inp{min-height:44px;padding:6px 8px;text-align:center}
+.frow{display:grid;grid-template-columns:minmax(0,1fr) 50px 62px 66px;gap:5px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.frow .inp{min-height:44px;padding:6px 2px;text-align:center}
 .frow.h{font-size:12px;color:var(--muted);border-bottom:1px solid var(--line)}
 .chk{display:flex;gap:10px;align-items:flex-start;margin:12px 0;font-size:15px;font-weight:600}
 .chk input{width:24px;height:24px;flex:none;margin-top:1px;accent-color:var(--main)}
 .chk small{display:block;font-weight:400;color:var(--muted);font-size:13px}
+/* 新ペリア：隠しホールの選択（幹事のみ） */
+.hgrid{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin:4px 0 8px}
+.hbtn{border:1px solid var(--main-line);border-radius:10px;background:#fff;color:var(--ink);padding:5px 0 4px;text-align:center}
+.hbtn b{display:block;font-size:17px;line-height:1.15}
+.hbtn span{display:block;font-size:10px;color:var(--muted)}
+.hbtn.on{background:var(--main);border-color:var(--main);color:#fff}
+.hbtn.on span{color:rgba(255,255,255,.75)}
+.sel{width:100%;min-height:46px;border:1px solid #CFC6BA;border-radius:10px;padding:6px 10px;background:#fff;font-size:16px}
+/* 結果発表 */
+[data-screen="result"] .bar-t{font-size:29px;font-weight:800;line-height:1.22;letter-spacing:.01em}
+[data-screen="result"] .bar-s{font-size:14px;margin-top:7px}
+.res-h{text-align:center;padding:22px 0 14px}
+.res-en{display:block;font-size:12px;font-weight:800;letter-spacing:.34em;color:var(--gold);padding-left:.34em}
+.res-h h1{margin:4px 0 2px;font-size:26px;font-weight:800;letter-spacing:.08em}
+.res-m{font-size:13px;color:var(--muted)}
+.nw{white-space:nowrap}   /* フルネームは「姓」「名」の間でだけ折り返す */
+/* 上位3名：明るい地に、王冠と金のリボン（優勝）、銀・銅のメダル（準優勝・3位） */
+.champ{position:relative;overflow:hidden;border-radius:22px;padding:20px 14px 24px;text-align:center;border:2.5px solid transparent;background:linear-gradient(#FFFEFA,#FBF5E6) padding-box,var(--gg) border-box;box-shadow:0 8px 22px rgba(156,122,43,.18)}
+.champ-pat{position:absolute;top:0;left:0;right:0;bottom:0;background:#B8923B;-webkit-mask:var(--tile) 50% 0/62.667px 250.667px;mask:var(--tile) 50% 0/62.667px 250.667px;opacity:.13}
+.champ > *:not(.champ-pat){position:relative}
+.champ .ic-crown{display:block;margin:0 auto;width:74px;height:53px;filter:drop-shadow(0 3px 5px rgba(120,90,20,.3))}
+.champ-l{display:inline-block;margin:8px 0 2px;padding:8px 44px 8px 50px;background:var(--gg);-webkit-clip-path:polygon(0 0,100% 0,calc(100% - 14px) 50%,100% 100%,0 100%,14px 50%);clip-path:polygon(0 0,100% 0,calc(100% - 14px) 50%,100% 100%,0 100%,14px 50%)}
+.champ-l span{font-size:18px;font-weight:800;letter-spacing:.34em;color:#33261A}
+.champ-n{font-size:42px;font-weight:800;line-height:1.2;margin-top:10px;word-break:break-word}
+.champ-g{font-size:13px;color:var(--muted)}
+.champ-s{display:flex;align-items:baseline;justify-content:center;gap:8px;margin-top:10px}
+.champ-s small{font-size:13px;font-weight:800;letter-spacing:.14em;color:#8A6A1F}
+.champ-s b{font-size:54px;font-weight:800;line-height:1;color:#8A6A1F;background:linear-gradient(135deg,#7E6020,#C9A24A 45%,#8A6A1F);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.champ-d{font-size:13px;color:var(--muted);margin-top:8px}
+.pods{margin:12px 0 6px;display:grid;gap:10px}
+.pod{display:flex;align-items:center;gap:12px;border-radius:16px;padding:10px 14px 10px 12px;border:2px solid transparent;background:linear-gradient(#fff,#F8F8F8) padding-box,var(--gs) border-box;box-shadow:0 4px 12px rgba(35,24,21,.07);min-width:0}
+.pod.b{background:linear-gradient(#fff,#FBF4EE) padding-box,var(--gb) border-box}
+.pod .ic-medal{flex:none;width:42px;height:55px;filter:drop-shadow(0 2px 4px rgba(35,24,21,.2))}
+.pod-who{flex:1 1 auto;min-width:0;text-align:left}
+.pod-l{font-size:12px;font-weight:800;letter-spacing:.16em;color:var(--muted)}
+.pod-n{font-size:23px;font-weight:800;line-height:1.25;word-break:break-word}
+.pod-g{font-size:12px;color:var(--muted)}
+.pod-sc{flex:none;text-align:right}
+.pod-s small{font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--gold);margin-right:4px}
+.pod-s b{font-size:28px;font-weight:800}
+.pod-d{font-size:11.5px;color:var(--muted)}
+.tag{display:inline-block;font-size:11px;font-weight:800;border-radius:999px;padding:1px 8px;margin-left:4px;vertical-align:2px;white-space:nowrap}
+.tag.bg{background:var(--gold-soft);color:#7A5E1E;border:1px solid var(--gold)}
+.tag.bb{background:var(--main-soft);color:var(--ink);border:1px solid var(--main-line)}
+.awards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 2px}
+.award{border:1px solid var(--main-line);border-radius:14px;padding:10px 12px;background:#fff;min-width:0}
+.award > span{display:block;font-size:12px;font-weight:800;color:var(--gold);letter-spacing:.06em}
+.award b{display:block;font-size:17px;line-height:1.3;word-break:break-word}
+.award small{font-size:12px;color:var(--muted)}
+.hid{margin:16px 0 4px;border-top:1px solid var(--line);padding-top:12px}
+.hid-t{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.hid-c{display:flex;flex-wrap:wrap;gap:6px}
+.hid-c span{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:30px;padding:0 6px;border-radius:8px;background:var(--main);color:#fff;font-weight:800;font-size:14px}
+/* 印刷（PDF保存）用の成績表：画面では非表示、結果発表ページを印刷したときだけ出る */
+.print-sheet{display:none}
+@media print{
+  @page{size:A4 portrait;margin:12mm 12mm}
+  html,body{background:#fff !important}
+  body::before{display:none !important}
+  .toast,.ov{display:none !important}
+  #app[data-screen="result"] > :not(.print-sheet){display:none !important}
+  .print-sheet{display:block;color:#000;font-size:10.5pt;line-height:1.45}
+  .ps-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14pt;border-bottom:1.6pt solid #231815;padding-bottom:8pt;margin-bottom:6pt}
+  .ps-logo{width:118pt;height:auto;flex:none}
+  .ps-title{font-size:17pt;font-weight:800;line-height:1.25;text-align:right}
+  .ps-sub{font-size:9.5pt;color:#333;text-align:right;margin-top:2pt}
+  .ps-kind{font-size:10pt;font-weight:700;margin:8pt 0 5pt}
+  .ps-table{width:100%;border-collapse:collapse}
+  .ps-table thead{display:table-header-group}
+  .ps-table tr{break-inside:avoid;page-break-inside:avoid}
+  .ps-table th{font-size:8.5pt;font-weight:700;color:#333;border-bottom:1pt solid #231815;padding:4pt 4pt;text-align:center;white-space:nowrap}
+  .ps-table td{border-bottom:.5pt solid #BBB;padding:3pt 4pt;text-align:center;font-variant-numeric:tabular-nums}
+  .ps-table .l{text-align:left}
+  .ps-table .rk{display:inline;min-width:0;height:auto;background:none !important;color:#000 !important;font-size:10.5pt;font-weight:700}
+  .ps-table td.net{font-weight:800;font-size:11.5pt}
+  .ps-table tr.top td{font-weight:700}
+  .ps-table td.nm{font-weight:700}
+  .ps-table .aw{font-size:8pt;font-weight:700;border:.6pt solid #555;border-radius:8pt;padding:0 4pt;margin-left:4pt;white-space:nowrap}
+  .ps-notes{margin-top:7pt;font-size:9pt;color:#222}
+  .ps-notes div{margin-top:2.5pt}
+  .ps-foot{margin-top:8pt;padding-top:4pt;border-top:.5pt solid #999;font-size:8pt;color:#555;display:flex;justify-content:space-between}
+}
 ul.plain{list-style:none;margin:0;padding:0}
 ul.plain li{padding:10px 0;border-bottom:1px solid var(--line)}
 
@@ -219,8 +302,8 @@ window.FIREBASE_CONFIG = {
 <!-- ▲▲ 接続設定ここまで ▲▲ -->
 <script type="module">
 /* =====================================================================
-   ゴルフコンペ LIVE順位速報  v1.2（GOLF GUTS モノグラム デザイン）
-   画面: ホーム(作成) / 順位速報 #v-{コンペID} / スコア入力 #g-{コンペID}-{組ID}-{キー} / 幹事 #a-{コンペID}
+   ゴルフコンペ LIVE順位速報  v1.4（結果発表の上位3名を刷新・フルネーム表示に対応）
+   画面: ホーム(作成) / 順位速報 #v-{コンペID} / 結果発表 #r-{コンペID} / スコア入力 #g-{コンペID}-{組ID}-{キー} / 幹事 #a-{コンペID}-{幹事キー}
    ===================================================================== */
 const FB_VER = '10.14.1';
 const SAVE_TIMEOUT_MS = 8000;
@@ -339,6 +422,72 @@ function groupProgress(pub, scores, g){
   return {players: ps, done, partial, next};
 }
 
+/* ---------- 新ペリア方式（ハンディキャップ）の計算 ----------
+   HDCP ＝（隠しホールの合計打数 × 18÷隠しホール数 − コースのPAR）× 0.8　　NET ＝ グロス − HDCP
+   小数の誤差を出さないよう、内部では10倍した整数で計算する */
+const PEORIA_KINDS = {12: '新ペリア（隠しホール12）', 9: '新新ペリア（隠しホール9）', 6: 'ペリア（隠しホール6）'};
+const PEORIA_CAPS = {double: 'ダブルパーまで（PARの2倍）', triple: 'トリプルボギーまで（PAR＋3）', none: '上限なし（打数そのまま）'};
+const fmt1 = t => (t / 10).toFixed(1);
+const peoriaDefaults = () => ({kind: 12, holes: '0'.repeat(18), cap: 'double', maxHc: 36, tie: 'hc'});
+function hiddenList(holes){ const a = []; for (let h = 1; h <= 18; h++) if (String(holes || '')[h-1] === '1') a.push(h); return a; }
+/* OUT・INから半分ずつ、PAR合計が標準（PAR72・新ペリアなら48）になる組み合わせをランダムに選ぶ */
+function pickHidden(pars, kind){
+  const total = pars.reduce((a,b) => a + b, 0); const target = Math.round(total * kind / 18);
+  const shuffle = a => { for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  let best = null, bestGap = Infinity;
+  for (let t = 0; t < 4000 && bestGap > 0; t++){
+    const nOut = kind % 2 === 0 ? kind / 2 : (Math.random() < .5 ? Math.floor(kind / 2) : Math.ceil(kind / 2));
+    const pick = [...shuffle([1,2,3,4,5,6,7,8,9]).slice(0, nOut), ...shuffle([10,11,12,13,14,15,16,17,18]).slice(0, kind - nOut)];
+    const gap = Math.abs(pick.reduce((x,h) => x + pars[h-1], 0) - target);
+    if (gap < bestGap){ best = pick; bestGap = gap; }
+  }
+  return Array.from({length: 18}, (_, i) => best.includes(i + 1) ? '1' : '0').join('');
+}
+function calcPeoria(pub, scores, cfg){
+  const pars = parsOf(pub); const parTotal = pars.reduce((a,b) => a + b, 0);
+  const hidden = hiddenList(cfg.holes); const n = hidden.length;
+  const rows = sortedPlayers(pub).map(p => {
+    let gross = 0, done = true;
+    for (let h = 1; h <= 18; h++){ const v = scoreOf(scores, p.id, h); if (v === null) done = false; else gross += v; }
+    if (!done || !n) return {...p, ok: false};
+    let hs = 0;   /* 隠しホールの合計（上限の設定があれば、ハンディキャップの計算にだけ適用） */
+    for (const h of hidden){ const v = scoreOf(scores, p.id, h), par = pars[h-1]; hs += cfg.cap === 'double' ? Math.min(v, par * 2) : cfg.cap === 'triple' ? Math.min(v, par + 3) : v; }
+    let hc10 = Math.round((hs * 18 / n - parTotal) * 8);
+    if (cfg.maxHc && hc10 > cfg.maxHc * 10) hc10 = cfg.maxHc * 10;
+    return {...p, ok: true, gross, hs, hc10, net10: gross * 10 - hc10};
+  });
+  const ranked = rows.filter(r => r.ok).sort((a,b) => a.net10 - b.net10 || a.hc10 - b.hc10 || a.gn - b.gn || a.o - b.o);
+  const key = r => cfg.tie === 'tie' ? String(r.net10) : r.net10 + ':' + r.hc10;   /* 同NETのとき：ハンデの少ない人を上位／同順位 */
+  let prev = null, rank = 0; ranked.forEach((r,i) => { if (key(r) !== prev){ rank = i + 1; prev = key(r); } r.rank = rank; });
+  return {ranked, skipped: rows.filter(r => !r.ok), n, hiddenPar: hidden.reduce((x,h) => x + pars[h-1], 0), parTotal};
+}
+/* 結果発表・成績表のためのデータをまとめる（公開済みの結果、または幹事だけが見られる未公開の結果） */
+function resultModel(pub, scores, privFinal){
+  const pars = parsOf(pub); const b = computeBoard(pub, scores); const f = pub.final || {};
+  const has = rows => !!rows && Object.values(rows).some(r => r && r.rank);
+  const pubRows = f.published && has(f.rows) ? f.rows : null; const prvRows = privFinal && has(privFinal.rows) ? privFinal.rows : null;
+  const src = pubRows || prvRows;
+  const card = sortedPlayers(pub).map(p => { let o = 0, i = 0, n = 0;
+    for (let h = 1; h <= 18; h++){ const v = scoreOf(scores, p.id, h); if (v !== null){ n++; if (h <= 9) o += v; else i += v; } }
+    return {...p, done: n === 18, out: o, inn: i, gross: o + i, diff: o + i - pars.reduce((a,x) => a + x, 0)}; });
+  let mode = '', list = [], rest = [];
+  if (src){ mode = 'peoria';
+    list = card.filter(p => src[p.id] && +src[p.id].rank > 0).map(p => ({...p, rank: +src[p.id].rank, net: src[p.id].net ?? '', hc: src[p.id].hc ?? ''}))
+      .sort((x,y) => x.rank - y.rank || (parseFloat(x.net) || 0) - (parseFloat(y.net) || 0) || x.gn - y.gn || x.o - y.o);
+    rest = card.filter(p => !list.some(x => x.id === p.id));
+  } else if (b.isFinal && b.ranked.length){ mode = 'gross';
+    const rk = Object.fromEntries(b.ranked.map(r => [r.id, r.rank]));
+    list = card.filter(p => rk[p.id]).map(p => ({...p, rank: rk[p.id], net: '', hc: ''})).sort((x,y) => x.rank - y.rank || x.gn - y.gn || x.o - y.o);
+    rest = card.filter(p => !rk[p.id]);
+  }
+  const doneP = card.filter(p => p.done); const bestG = doneP.length ? Math.min(...doneP.map(p => p.gross)) : null;
+  const holes = (f.published && f.reveal && f.holes) || (privFinal && privFinal.holes) || '';
+  const hasHc = list.some(p => p.hc !== '');
+  return {mode, list, rest, preview: !!src && !pubRows, hasHc, kind: +(f.kind || (privFinal && privFinal.kind)) || 12,
+    hidden: mode === 'peoria' && hasHc ? hiddenList(holes) : [], bestGross: bestG === null ? [] : doneP.filter(p => p.gross === bestG), bestG,
+    booby: list.length >= 3 ? list[list.length - 2] : null};
+}
+
 /* ---------- data store: Firebase ---------- */
 async function createFirebaseStore(cfg){
   const base = `https://www.gstatic.com/firebasejs/${FB_VER}/`;
@@ -358,6 +507,7 @@ async function createFirebaseStore(cfg){
     update(path, obj){ return dbM.update(dbM.ref(db, path), obj); },
     now(){ return dbM.serverTimestamp(); },
     onConn(cb){ return dbM.onValue(dbM.ref(db, '.info/connected'), s => cb(s.val() === true)); },
+    async who(){ await authReady; return auth.currentUser ? auth.currentUser.uid : null; },   /* サインイン済みなら uid、していなければ null（新しくサインインはしない） */
     uid(){ if (!uidP) uidP = (async () => { await authReady; if (!auth.currentUser) await authM.signInAnonymously(auth); return auth.currentUser.uid; })().catch(e => { uidP = null; throw e; }); return uidP; }
   };
 }
@@ -396,6 +546,7 @@ function createLocalStore(){
     update(path, obj){ return apply(Object.entries(obj).map(([k, v]) => [path + '/' + k, v])); },
     now(){ return {__ts: 1}; },
     onConn(cb){ setTimeout(() => cb(true), 0); return () => {}; },
+    async who(){ return uid; },
     async uid(){ return uid; }
   };
 }
@@ -410,14 +561,26 @@ const adminUrl = (cid, sec) => `${baseUrl()}#a-${cid}-${sec}`;
 const lineHref = text => `https://line.me/R/share?text=${encodeURIComponent(text)}`;
 const demoBar = () => store && store.mode === 'demo' ? `<div class="demo"><div class="wrap"><b>デモモード</b>：この端末の中だけで動きます。URLを送っても他の人には共有されません。</div></div>` : '';
 const pageHead = (title, sub, link) => `<div class="brand"><div class="wrap"><i class="logo" role="img" aria-label="GOLF GUTS"></i></div></div><header class="bar"><div class="wrap"><div class="grow"><div class="bar-t">${esc(title)}</div>${sub ? `<div class="bar-s">${esc(sub)}</div>` : ''}</div>${link || ''}</div></header><div class="goldline"></div>${demoBar()}`;
-/* コンペ名を、1行に収まる範囲でできるだけ大きく表示する（長い名前は自動で少し小さくし、それでも入らなければ折り返す） */
-function fitTitle(root){
-  const t = root.querySelector('.bar-t'); if (!t) return;
-  t.style.fontSize = ''; t.style.whiteSpace = 'nowrap';
-  let fs = parseFloat(getComputedStyle(t).fontSize) || 29;
-  while (fs > 21 && t.scrollWidth > t.clientWidth + 1){ fs -= 1; t.style.fontSize = fs + 'px'; }
+/* 名前の表示：フルネーム（姓と名の間に空白）は、空白の位置でだけ折り返すようにする */
+const nm = name => { const parts = String(name ?? '').trim().split(/[\s\u3000]+/).filter(Boolean); return parts.length > 1 ? parts.map(x => `<span class="nw">${esc(x)}</span>`).join(' ') : esc(name); };
+/* 指定した要素の文字を、1行に収まるところまで少しずつ小さくする（下限あり。下限でも入らなければ折り返す） */
+function fitLine(t, min){
+  if (!t) return; t.style.fontSize = ''; t.style.whiteSpace = 'nowrap';
+  let fs = parseFloat(getComputedStyle(t).fontSize) || 20;
+  while (fs > min && t.scrollWidth > t.clientWidth){ fs -= 1; t.style.fontSize = fs + 'px'; }
   t.style.whiteSpace = '';
+  /* 端数の誤差で1px足りずに折り返すことがあるので、実際に1行になっているかも確かめる */
+  const oneLine = () => { const lh = parseFloat(getComputedStyle(t).lineHeight); return !(lh > 0) || t.getBoundingClientRect().height < lh * 1.5; };
+  while (fs > min && !oneLine()){ fs -= 1; t.style.fontSize = fs + 'px'; }
 }
+/* 結果発表の飾り（王冠・メダル）。金・銀・銅のグラデーションは1か所で定義して使い回す */
+const PODIUM_DEFS = `<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>`
+  + [['gGold', '#9C7A2B', '#EBD596', '#B8923B', '#F6E9C4'], ['gSilver', '#7C8186', '#E9EBED', '#A4A9AE', '#F4F5F6'], ['gBronze', '#7A4A2A', '#DDAA84', '#A8683F', '#EECBAE']]
+    .map(([id, a, b, c, d]) => `<linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a}"/><stop offset=".38" stop-color="${b}"/><stop offset=".62" stop-color="${c}"/><stop offset="1" stop-color="${d}"/></linearGradient>`).join('') + `</defs></svg>`;
+const icCrown = id => `<svg class="ic-crown" viewBox="0 0 64 46" aria-hidden="true"><path fill="url(#${id})" d="M7 36h50l5-25-15 10L32 4 17 21 2 11z"/><rect x="7" y="39" width="50" height="5" rx="1.5" fill="url(#${id})"/><circle cx="32" cy="4" r="3.2" fill="url(#${id})"/><circle cx="2.6" cy="10.6" r="2.6" fill="url(#${id})"/><circle cx="61.4" cy="10.6" r="2.6" fill="url(#${id})"/></svg>`;
+const icMedal = (n, id) => `<svg class="ic-medal" viewBox="0 0 60 78" aria-hidden="true"><path d="M14 0h12l8 26H22z" fill="#231815"/><path d="M46 0H34l-8 26h12z" fill="#4A3B35"/><circle cx="30" cy="50" r="26" fill="url(#${id})"/><circle cx="30" cy="50" r="20.5" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.4"/><text x="30" y="59.5" text-anchor="middle" font-size="26" font-weight="800" fill="#3A2A12">${n}</text></svg>`;
+/* コンペ名を、1行に収まる範囲でできるだけ大きく表示する（長い名前は自動で少し小さくし、それでも入らなければ折り返す） */
+function fitTitle(root){ fitLine(root.querySelector('.bar-t'), 21); }
 const simplePage = (title, bodyHtml) => `${pageHead(title)}<div class="wrap">${bodyHtml}</div>`;
 
 async function boot(){
@@ -448,6 +611,7 @@ function route(){
   if (parts[0] === 'v' && ok(parts[1])) unmount = mountViewer(app, parts[1]);
   else if (parts[0] === 'g' && ok(parts[1]) && ok(parts[2]) && ok(parts[3])) unmount = mountRep(app, parts[1], parts[2], parts[3]);
   else if (parts[0] === 'a' && ok(parts[1])) unmount = mountAdmin(app, parts[1], ok(parts[2]) ? parts[2] : '');
+  else if (parts[0] === 'r' && ok(parts[1])) unmount = mountResult(app, parts[1]);
   else if (parts[0] === 'new') unmount = mountCreate(app);
   else unmount = mountHome(app);
 }
@@ -477,16 +641,17 @@ function mountViewer(el, cid){
     h += cur === 'peoria' ? `<span class="badge final" id="statusBadge">最終順位</span>` : b.isFinal ? `<span class="badge final" id="statusBadge">最終結果</span>` : `<span class="badge" id="statusBadge">暫定順位</span>`;
     h += `</div>`;
     if (hasPeoria) h += `<div class="tabs"><button data-tab="peoria" class="${cur === 'peoria' ? 'on' : ''}">新ペリア 最終順位</button><button data-tab="gross" class="${cur === 'gross' ? 'on' : ''}">グロス順位</button></div>`;
+    if (hasPeoria || b.isFinal) h += `<a class="btn block" id="toResult" href="#r-${esc(cid)}" style="margin:10px 0">結果発表を見る（印刷・PDF）</a>`;
     if (cur === 'peoria'){
       const players = sortedPlayers(pub); const byId = Object.fromEntries([...b.ranked, ...b.rest].map(r => [r.id, r]));
-      const list = players.map(p => ({...p, rank: +(finRows[p.id] || {}).rank || 0, net: (finRows[p.id] || {}).net, gross: byId[p.id]}))
+      const list = players.map(p => ({...p, rank: +(finRows[p.id] || {}).rank || 0, net: (finRows[p.id] || {}).net, hc: (finRows[p.id] || {}).hc, gross: byId[p.id]}))
         .sort((x,y) => (x.rank || 9999) - (y.rank || 9999) || x.gn - y.gn || x.o - y.o);
-      h += `<p class="note">ゴルフ場で集計された新ペリア方式の最終順位です。</p><div class="lb" id="board"><div class="lbh"><span>順位</span><span>名前</span><span>NET</span><span>グロス</span></div>`;
+      h += `<p class="note">新ペリア方式の最終順位です（NET ＝ グロス − ハンディキャップ）。</p><div class="lb" id="board"><div class="lbh"><span>順位</span><span>名前</span><span>NET</span><span>グロス</span></div>`;
       for (const r of list){
         h += `<div class="lbr ${r.rank && r.rank <= 3 ? 'top' : ''}" data-pid="${esc(r.id)}"><span>${r.rank ? `<span class="rk ${r.rank <= 3 ? 'r'+r.rank : ''}">${r.rank}<small>位</small></span>` : `<span class="rk none">–</span>`}</span>`
-          + `<span class="pn">${esc(r.name)} <span class="pg">${r.gn}組</span></span>`
+          + `<span class="pn">${nm(r.name)} <span class="pg">${r.gn}組</span></span>`
           + `<span class="sc over num" style="font-size:20px">${r.net !== undefined && r.net !== null && r.net !== '' ? esc(r.net) : '–'}</span>`
-          + `<span class="hl num">${r.gross && r.gross.holes === 18 ? `<b>${r.gross.strokes}</b>` : '–'}</span></div>`;
+          + `<span class="hl num">${r.gross && r.gross.holes === 18 ? `<b>${r.gross.strokes}</b>` : '–'}${r.hc !== undefined && r.hc !== null && r.hc !== '' ? `<br>HC ${esc(r.hc)}` : ''}</span></div>`;
       }
       h += `</div>`;
     } else {
@@ -497,14 +662,14 @@ function mountViewer(el, cid){
       for (const r of b.ranked){
         h += `<div class="lbr ${r.rank <= 3 ? 'top' : ''}" data-pid="${esc(r.id)}" data-rank="${r.rank}" data-diff="${r.diff}" data-holes="${r.holes}">`
           + `<span><span class="rk ${r.rank <= 3 ? 'r'+r.rank : ''}">${r.rank}<small>位</small></span></span>`
-          + `<span class="pn">${esc(r.name)} <span class="pg">${r.gn}組</span></span>`
+          + `<span class="pn">${nm(r.name)} <span class="pg">${r.gn}組</span></span>`
           + `<span class="sc ${diffClass(r.diff)} num">${fmtDiff(r.diff)}${b.isFinal ? `<small>${r.strokes}打</small>` : ''}</span>`
           + (r.holes === 18 ? `<span class="hl fin">18ホール<br>終了</span>` : `<span class="hl num"><b>${r.holes}</b>ホール<br>終了</span>`) + `</div>`;
       }
       h += `</div>`;
       if (b.rest.length){
         h += `<div class="sect">${b.isFinal ? '18ホール未完了（順位対象外）' : 'スタート前'}</div><div id="restBoard">`;
-        for (const r of b.rest) h += `<div class="lbr wait" data-pid="${esc(r.id)}" data-holes="${r.holes}"><span><span class="rk none">–</span></span><span class="pn">${esc(r.name)} <span class="pg">${r.gn}組</span></span><span class="sc num" style="font-size:16px;color:var(--muted)">${r.holes ? fmtDiff(r.diff) : ''}</span><span class="hl num">${r.holes ? `<b>${r.holes}</b>ホール<br>終了` : '未入力'}</span></div>`;
+        for (const r of b.rest) h += `<div class="lbr wait" data-pid="${esc(r.id)}" data-holes="${r.holes}"><span><span class="rk none">–</span></span><span class="pn">${nm(r.name)} <span class="pg">${r.gn}組</span></span><span class="sc num" style="font-size:16px;color:var(--muted)">${r.holes ? fmtDiff(r.diff) : ''}</span><span class="hl num">${r.holes ? `<b>${r.holes}</b>ホール<br>終了` : '未入力'}</span></div>`;
         h += `</div>`;
       }
     }
@@ -522,6 +687,79 @@ function mountViewer(el, cid){
   el.onclick = e => { const b = e.target.closest('[data-tab]'); if (b){ tab = b.dataset.tab; render(); } };
   render();
   return () => { offs.forEach(f => f()); clearTimeout(t); };
+}
+
+/* =====================================================================
+   結果発表（公開後は誰でも見られる。印刷するとA4の成績表になる）
+   ===================================================================== */
+function mountResult(el, cid){
+  el.dataset.screen = 'result';
+  const tok = routeTok; const alive = () => tok === routeTok;
+  let pub, scores = {}, got = false, failed = false, privFinal = null;
+  if (memo[cid] && 'pub' in memo[cid]){ pub = memo[cid].pub; got = true; scores = memo[cid].scores || {}; }
+  const logoSrc = () => { try{ const m = /url\(["']?(.*?)["']?\)/.exec(getComputedStyle(document.documentElement).getPropertyValue('--logo')); return m ? m[1] : ''; }catch(e){ return ''; } };
+  const rankLabel = r => r === 1 ? '優勝' : r === 2 ? '準優勝' : `${r}位`;
+  function render(){
+    if (!alive()) return;
+    if (failed){ el.innerHTML = simplePage('結果発表', `<div class="msg err">結果を読み込めませんでした。URLが正しいか確認してください。</div>`); return; }
+    if (!got){ el.innerHTML = simplePage('結果発表', `<div class="pad center" style="color:var(--muted)">読み込み中…</div>`); return; }
+    if (!pub){ el.innerHTML = simplePage('結果発表', `<div class="msg err">コンペが見つかりません。<small>URLが正しいか、幹事に確認してください。</small></div>`); return; }
+    const m = resultModel(pub, scores, privFinal); const peo = m.mode === 'peoria';
+    const sub = [fmtDate(pub.date), pub.course].filter(Boolean).join('・');
+    let h = pageHead(pub.name || 'ゴルフコンペ', sub) + `<div class="wrap res" id="resultRoot" data-mode="${m.mode}">`;
+    const back = `<a class="btn block" href="#v-${esc(cid)}" style="margin:10px 0 14px">順位速報に戻る</a>`;
+    if (!m.mode){
+      h += `<div class="res-h"><span class="res-en">RESULT</span><h1>結果発表</h1></div><div class="msg warn" id="noResult">結果はまだ発表されていません。<small>全員のスコアがそろうか、幹事が結果を公開すると表示されます。</small></div>${back}</div>`;
+      el.innerHTML = h; fitTitle(el); return; }
+    if (m.preview) h += `<div class="msg warn" id="previewNote" style="margin-top:14px">まだ公開していません<small>この画面は幹事にだけ表示されています（参加者には見えません）。</small></div>`;
+    const kindLabel = peo ? (m.hasHc ? (PEORIA_KINDS[m.kind] || '新ペリア').replace(/（.*$/, '') + '方式' : '最終順位') : 'グロス（実際の打数）';
+    h += `<div class="res-h"><span class="res-en">RESULT</span><h1>結果発表</h1><div class="res-m">${kindLabel}${peo && m.hasHc ? '・NET順位' : ''}</div></div>`;
+    const mainLabel = peo ? 'NET' : 'GROSS';
+    const main = p => peo ? (p.net !== '' ? esc(p.net) : '–') : (p.done ? p.gross : '–');
+    const detail = p => peo ? [p.done ? `GROSS ${p.gross}` : '', p.hc !== '' ? `HDCP ${esc(p.hc)}` : ''].filter(Boolean).join('　') : (p.done ? `PAR ${fmtDiff(p.diff)}` : '');
+    const tags = p => (m.bestGross.some(x => x.id === p.id) ? '<span class="tag bg">ベストグロス</span>' : '') + (m.booby && m.booby.id === p.id ? '<span class="tag bb">ブービー</span>' : '');
+    const [c, ...others] = m.list; const pod = others.slice(0, 2), tail = others.slice(2);
+    const metal = r => r === 2 ? ['s', 'gSilver'] : r === 3 ? ['b', 'gBronze'] : r === 1 ? ['g', 'gGold'] : ['s', 'gSilver'];
+    h += PODIUM_DEFS + `<div class="champ" id="champ" data-pid="${esc(c.id)}"><div class="champ-pat"></div>${icCrown('gGold')}<div class="champ-l"><span>${rankLabel(c.rank)}</span></div><div class="champ-n" id="champName">${nm(c.name)}</div><div class="champ-g">${c.gn}組</div><div class="champ-s"><small>${mainLabel}</small><b class="num">${main(c)}</b></div><div class="champ-d num">${detail(c)}</div></div>`;
+    if (pod.length) h += `<div class="pods">` + pod.map(p => { const [k, g] = metal(p.rank);
+      return `<div class="pod ${k}" data-pid="${esc(p.id)}">${icMedal(p.rank, g)}<div class="pod-who"><div class="pod-l">${rankLabel(p.rank)}</div><div class="pod-n">${nm(p.name)}</div><div class="pod-g">${p.gn}組</div></div><div class="pod-sc"><div class="pod-s"><small>${mainLabel}</small><b class="num">${main(p)}</b></div><div class="pod-d num">${detail(p).replace('　', '<br>')}</div></div></div>`; }).join('') + `</div>`;
+    /* 各賞は上位3名のすぐ下に表示 */
+    const aw = [];
+    if (m.bestGross.length) aw.push(`<div class="award" id="awBest"><span>ベストグロス</span><b>${m.bestGross.map(p => nm(p.name)).join('・')}</b><small class="num">${m.bestG}打</small></div>`);
+    if (m.booby) aw.push(`<div class="award" id="awBooby"><span>ブービー賞</span><b>${nm(m.booby.name)}</b><small class="num">${m.booby.rank}位</small></div>`);
+    if (aw.length) h += `<div class="awards">${aw.join('')}</div>`;
+    if (tail.length){
+      h += `<div class="lb" id="resList" style="margin-top:14px"><div class="lbh"><span>順位</span><span>名前</span><span>${mainLabel}</span><span>${peo ? 'グロス' : 'PAR差'}</span></div>`;
+      for (const p of tail) h += `<div class="lbr" data-pid="${esc(p.id)}" data-rank="${p.rank}"><span><span class="rk">${p.rank}<small>位</small></span></span><span class="pn">${nm(p.name)} <span class="pg">${p.gn}組</span>${tags(p)}</span><span class="sc over num" style="font-size:20px">${main(p)}</span><span class="hl num">${peo ? `${p.done ? `<b>${p.gross}</b>` : '–'}${p.hc !== '' ? `<br>HC ${esc(p.hc)}` : ''}` : (p.done ? `<b>${fmtDiff(p.diff)}</b>` : '–')}</span></div>`;
+      h += `</div>`; }
+    if (m.rest.length) h += `<div class="sect">順位対象外</div><p class="note" style="margin-top:8px">${m.rest.map(p => nm(p.name)).join('、')}</p>`;
+    if (m.hidden.length) h += `<div class="hid" id="hidden"><div class="hid-t">隠しホール（${m.hidden.length}ホール）</div><div class="hid-c">${m.hidden.map(k => `<span class="num">${k}</span>`).join('')}</div></div>`;
+    h += `<div style="margin:20px 0 4px"><button class="btn primary block big" id="printBtn">印刷・PDFで保存</button><p class="hint center" style="margin-top:8px">印刷の画面で「PDFとして保存」を選ぶと、A4の成績表をPDFにできます。<br>うまく開かないときは、Safari／Chromeで開き直してください。</p></div>${back}</div>`;
+    /* ---- 印刷用（A4の成績表）---- */
+    const now = new Date(); const stamp = `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()} ${fmtTime(now)}`;
+    const awP = p => (m.bestGross.some(x => x.id === p.id) ? '<span class="aw">ベストグロス</span>' : '') + (m.booby && m.booby.id === p.id ? '<span class="aw">ブービー</span>' : '');
+    const tr = (p, ranked) => `<tr class="${ranked && p.rank <= 3 ? 'top' : ''}"><td>${ranked ? p.rank : '–'}</td><td class="l nm">${esc(p.name)}${ranked ? awP(p) : ''}</td><td>${p.gn}</td><td>${p.done ? p.out : '–'}</td><td>${p.done ? p.inn : '–'}</td><td>${p.done ? p.gross : '–'}</td>`
+      + (peo ? `<td>${p.hc !== '' && ranked ? esc(p.hc) : '–'}</td><td class="net">${p.net !== '' && ranked ? esc(p.net) : '–'}</td>` : `<td class="net">${p.done ? fmtDiff(p.diff) : '–'}</td>`) + `</tr>`;
+    const src = logoSrc();
+    h += `<section class="print-sheet" id="printSheet"><div class="ps-head">${src ? `<img class="ps-logo" src="${src}" alt="GOLF GUTS">` : '<b>GOLF GUTS</b>'}<div><div class="ps-title">${esc(pub.name || 'ゴルフコンペ')}　成績表</div><div class="ps-sub">${esc(sub)}</div></div></div>`
+      + `<div class="ps-kind">${kindLabel}${peo && m.hasHc ? '（NET順位）' : ''}　／　参加 ${m.list.length + m.rest.length}名${m.preview ? '　／　※未公開（幹事確認用）' : ''}</div>`
+      + `<table class="ps-table"><thead><tr><th>順位</th><th class="l">氏名</th><th>組</th><th>OUT</th><th>IN</th><th>GROSS</th>${peo ? '<th>HDCP</th><th>NET</th>' : '<th>PAR差</th>'}</tr></thead><tbody>${m.list.map(p => tr(p, true)).join('')}${m.rest.map(p => tr(p, false)).join('')}</tbody></table><div class="ps-notes">`
+      + `<div><b>優勝</b>　${esc(c.name)}${pod[0] ? `　　<b>${rankLabel(pod[0].rank)}</b>　${esc(pod[0].name)}` : ''}${pod[1] ? `　　<b>${rankLabel(pod[1].rank)}</b>　${esc(pod[1].name)}` : ''}</div>`
+      + (m.bestGross.length || m.booby ? `<div>${m.bestGross.length ? `<b>ベストグロス</b>　${m.bestGross.map(p => esc(p.name)).join('・')}（${m.bestG}）` : ''}${m.booby ? `　　<b>ブービー賞</b>　${esc(m.booby.name)}（${m.booby.rank}位）` : ''}</div>` : '')
+      + (m.hidden.length ? `<div><b>隠しホール</b>　${m.hidden.join('・')}（${m.hidden.length}ホール）</div>` : '')
+      + (peo && m.hasHc ? `<div>HDCP ＝（隠しホールの合計 × ${String(18 / m.kind)} − コースのPAR ${parsOf(pub).reduce((a,x) => a + x, 0)}）× 0.8　／　NET ＝ GROSS − HDCP</div>` : '')
+      + `</div><div class="ps-foot"><span>GOLF GUTS　DESIGN YOUR GOLF LIFE</span><span>出力 ${stamp}</span></div></section>`;
+    el.innerHTML = h; fitTitle(el); fitLine(el.querySelector('#champName'), 28);
+  }
+  const offs = [
+    store.watch(P(cid, 'pub'), v => { pub = v; got = true; memoSet(cid, 'pub', v); render(); }, () => { failed = true; render(); }),
+    store.watch(P(cid, 'scores'), v => { scores = v || {}; memoSet(cid, 'scores', scores); render(); }, () => {})
+  ];
+  /* 幹事の端末なら、未公開の結果も確認・印刷できる（参加者の端末では読み取りが拒否される） */
+  (async () => { try{ const who = await store.who(); if (!who || !alive()) return; const pv = await withTimeout(store.get(P(cid, 'private/final')), 8000); if (alive() && pv){ privFinal = pv; render(); } }catch(e){} })();
+  el.onclick = e => { if (e.target.closest('#printBtn')){ try{ window.print(); }catch(x){ toast('この画面では印刷を開けません。Safari／Chromeで開き直してください'); } } };
+  render();
+  return () => { offs.forEach(f => f()); };
 }
 
 /* =====================================================================
@@ -598,7 +836,7 @@ function mountRep(el, cid, gid, key){
       + `<div class="hinfo"><div class="hno num" id="holeNo">${hole}<small>番ホール</small></div><div class="hpar num" id="holePar">PAR ${pars[hole-1]}</div><div id="hlabel">${hlabelHtml()}</div></div>`
       + `<button class="navb" data-nav="1" ${i >= 17 ? 'disabled' : ''} aria-label="次のホール">›</button></div>`;
     h += `<div id="rows">` + members().map(p => { const v = draft[p.id];
-      return `<div class="srow" data-pid="${esc(p.id)}"><div class="sname">${esc(p.name)}</div><div class="stepper">`
+      return `<div class="srow" data-pid="${esc(p.id)}"><div class="sname">${nm(p.name)}</div><div class="stepper">`
         + `<button class="stb" data-step="-1" aria-label="${esc(p.name)} 1打減らす">－</button>`
         + `<input class="sinput num ${v === null ? 'empty' : ''}" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" autocomplete="off" placeholder="–" value="${v === null ? '' : v}" aria-label="${esc(p.name)} の打数">`
         + `<button class="stb" data-step="1" aria-label="${esc(p.name)} 1打増やす">＋</button></div></div>`; }).join('') + `</div>`;
@@ -750,8 +988,8 @@ function edHtml(ed, mode){
     <div class="field"><label for="edCourse">ゴルフ場名</label><input class="inp" id="edCourse" data-ed="course" value="${esc(ed.course)}" placeholder="例：○○カントリークラブ" maxlength="60"></div></div>`;
   if (mode === 'create'){
     h += `<div class="card"><h2>② 参加者</h2><div class="field"><label for="edBulk">参加者名（1行に1名）</label>
-      <textarea class="inp" id="edBulk" data-ed="bulk" placeholder="田中&#10;佐藤&#10;鈴木&#10;山田&#10;…">${esc(ed.bulk)}</textarea>
-      <p class="hint">LINEなどの名簿をそのまま貼り付けできます。上から4名ずつ組に分けます（あとで自由に変更できます）。</p></div>
+      <textarea class="inp" id="edBulk" data-ed="bulk" placeholder="田中 健一&#10;佐藤 大輔&#10;鈴木 拓也&#10;山田 翔太&#10;…">${esc(ed.bulk)}</textarea>
+      <p class="hint">フルネームで入力すると、順位表・結果発表・成績表にそのまま表示されます。LINEなどの名簿をそのまま貼り付けできます。上から4名ずつ組に分けます（あとで自由に変更できます）。</p></div>
       <button class="btn block" data-split>${ed.players.length ? '名簿から組分けをやり直す' : '4名ずつ組分けする'}</button></div>`;
   }
   if (mode !== 'create' || ed.players.length){
@@ -848,7 +1086,7 @@ function mountCreate(el){
     if (busy) return;
     if (e.target.closest('[data-sample]')){
       Object.assign(ed, {name: '第1回 サンプルコンペ', course: 'サンプルカントリークラブ', pw: 'demo1234',
-        bulk: ['田中','佐藤','鈴木','山田','高橋','伊藤','渡辺','中村','小林','加藤','吉田','山本','佐々木','松本','井上','木村','林','清水','斎藤','山口','森','池田','橋本','阿部'].join('\n')});
+        bulk: ['田中 健一','佐藤 大輔','鈴木 拓也','山田 翔太','高橋 直樹','伊藤 誠','渡辺 浩二','中村 雄介','小林 達也','加藤 和也','吉田 修','山本 剛','佐々木 健太郎','松本 隆','井上 智也','木村 亮','林 大地','清水 慎吾','斎藤 悠','山口 航','森 康平','池田 純','橋本 優','阿部 涼'].join('\n')});
       edSplit(ed); ed.groups.forEach((g, i) => g.start = i >= 3 ? 10 : 1); err = ''; render(); toast('サンプルを入力しました（パスワード：demo1234）'); return; }
     if (e.target.closest('#createBtn')){
       err = edValidate(ed, 'create'); if (err){ render(); el.querySelector('#createErr').scrollIntoView({block:'center'}); return; }
@@ -885,7 +1123,7 @@ function mountAdmin(el, cid, secFromUrl){
   const sec = secFromUrl || (((ls.getJSON('mycomps') || []).find(c => c && c.cid === cid) || {}).a || '');
   const tok = routeTok; const alive = () => tok === routeTok;
   let phase = 'load', pub = null, scores = {}, priv = null, tab = 'status', loginErr = '', busy = false;
-  let ed = null, se = null, fin = null, formMsg = null, baseSnap = '';
+  let ed = null, se = null, fin = null, formMsg = null, calcMsg = null, baseSnap = '';
   const snapOf = () => tab === 'settings' && ed ? JSON.stringify(ed) : tab === 'final' && fin ? JSON.stringify(fin) : tab === 'scores' && se ? JSON.stringify(se) : '';
   const offs = [];
   const hasScores = pid => Object.keys(scores[pid] || {}).some(k => /^h\d+$/.test(k));
@@ -901,7 +1139,7 @@ function mountAdmin(el, cid, secFromUrl){
     if (phase === 'login'){
       el.innerHTML = shell(`<form class="card" id="loginForm"><h2>幹事パスワード</h2><div class="field"><label for="pw">コンペ作成時に決めたパスワード</label><input class="inp" id="pw" type="password" autocomplete="current-password"></div>${loginErr ? `<div class="msg err" id="loginErr">${esc(loginErr)}</div>` : ''}<button class="btn primary block big" id="loginBtn" ${busy ? 'disabled' : ''}>${busy ? '確認中…' : '管理画面を開く'}</button></form>`);
       return; }
-    let h = `<div class="atabs" role="tablist">` + [['status','進行状況<br>URL共有'],['scores','スコア<br>修正'],['settings','参加者<br>設定'],['final','最終結果<br>登録']].map(([k, l]) => `<button data-atab="${k}" class="${tab === k ? 'on' : ''}">${l}</button>`).join('') + `</div><div id="tabBody"></div><div style="height:calc(32px + var(--sab))"></div>`;
+    let h = `<div class="atabs" role="tablist">` + [['status','進行状況<br>URL共有'],['scores','スコア<br>修正'],['settings','参加者<br>設定'],['final','新ペリア<br>最終結果']].map(([k, l]) => `<button data-atab="${k}" class="${tab === k ? 'on' : ''}">${l}</button>`).join('') + `</div><div id="tabBody"></div><div style="height:calc(32px + var(--sab))"></div>`;
     el.innerHTML = shell(h); renderTab();
   }
   function renderTab(focusId){
@@ -910,7 +1148,7 @@ function mountAdmin(el, cid, secFromUrl){
     if (tab === 'status') body.innerHTML = statusHtml();
     else if (tab === 'scores') body.innerHTML = scoresHtml() + msg;
     else if (tab === 'settings'){ if (!ed){ ed = edFromPub(pub); baseSnap = snapOf(); } body.innerHTML = `<div id="ed">${edHtml(ed, 'edit')}</div>${msg}<button class="btn primary block big" id="saveSettings" ${busy ? 'disabled' : ''}>${busy ? '保存中…' : '変更を保存'}</button>`; }
-    else if (tab === 'final'){ if (!fin){ fin = finFromPub(); baseSnap = snapOf(); } body.innerHTML = finalHtml() + msg + `<button class="btn primary block big" id="saveFinal" ${busy ? 'disabled' : ''}>${busy ? '保存中…' : '保存する'}</button>`; }
+    else if (tab === 'final'){ if (!fin){ fin = finFromPub(); baseSnap = snapOf(); } body.innerHTML = finalHtml() + msg + `<button class="btn primary block big" id="saveFinal" ${busy ? 'disabled' : ''}>${busy ? '保存中…' : '保存する'}</button><button class="btn block" data-openresult style="margin-top:10px">結果発表ページを開く（印刷・PDF）</button>`; }
     if (focusId){ const n = el.querySelector(`[data-pname="${focusId}"]`); if (n) n.focus(); }
   }
   function statusHtml(){
@@ -945,17 +1183,43 @@ function mountAdmin(el, cid, secFromUrl){
     }
     return h + `</div>`;
   }
-  function finFromPub(){ const f = pub.final || {}; const rows = {};
-    for (const p of sortedPlayers(pub)){ const r = (f.rows || {})[p.id] || {}; rows[p.id] = {rank: r.rank ? String(r.rank) : '', net: r.net !== undefined && r.net !== null ? String(r.net) : ''}; }
-    return {closed: !!f.closed, published: !!f.published, rows}; }
+  function finFromPub(){
+    const f = pub.final || {}; const pf = (priv && priv.final) || {}; const d = peoriaDefaults(); const src = pf.rows || f.rows || {}; const rows = {};
+    const str = v => v !== undefined && v !== null ? String(v) : '';
+    for (const p of sortedPlayers(pub)){ const r = src[p.id] || {}; rows[p.id] = {rank: r.rank ? String(r.rank) : '', hc: str(r.hc), net: str(r.net)}; }
+    return {closed: !!f.closed, published: !!f.published, reveal: !!f.reveal, kind: PEORIA_KINDS[pf.kind] ? +pf.kind : d.kind,
+      holes: /^[01]{18}$/.test(pf.holes || '') ? pf.holes : d.holes, cap: PEORIA_CAPS[pf.cap] ? pf.cap : d.cap,
+      maxHc: pf.maxHc === 0 ? 0 : (+pf.maxHc || d.maxHc), tie: pf.tie === 'tie' ? 'tie' : 'hc', rows};
+  }
   function finalHtml(){
     const b = computeBoard(pub, scores); const gross = Object.fromEntries([...b.ranked, ...b.rest].map(r => [r.id, r]));
+    const pars = parsOf(pub); const parTotal = pars.reduce((a,x) => a + x, 0);
+    const hid = hiddenList(fin.holes); const nOut = hid.filter(x => x <= 9).length; const hp = hid.reduce((x,k) => x + pars[k-1], 0);
+    const target = Math.round(parTotal * fin.kind / 18); const mult = String(18 / fin.kind);
+    const hbtn = k => `<button class="hbtn ${fin.holes[k-1] === '1' ? 'on' : ''}" data-hh="${k}" aria-pressed="${fin.holes[k-1] === '1'}" aria-label="${k}番ホール"><b class="num">${k}</b><span>P${pars[k-1]}</span></button>`;
+    const opt = (v, cur, label) => `<option value="${v}" ${String(v) === String(cur) ? 'selected' : ''}>${label}</option>`;
     let h = `<div class="card"><h2>グロス順位の確定</h2><p class="hint">全員が18ホールを入力すると、順位速報は自動で「最終結果」になります。</p>
       <label class="chk"><input type="checkbox" id="finClosed" ${fin.closed ? 'checked' : ''}><span>ラウンド終了として表示する<small>途中棄権などで18ホール入力できない人がいる場合に使います。18ホール未完了の人は順位対象外になります。</small></span></label></div>`;
-    h += `<div class="card"><h2>新ペリアの最終順位</h2><p class="hint" style="margin-bottom:8px">ゴルフ場で集計された結果を入力してください。順位は必須、NETは任意です。</p><div class="frow h"><span>名前（グロス）</span><span class="center">順位</span><span class="center">NET</span></div>`;
-    for (const p of sortedPlayers(pub)){ const r = fin.rows[p.id] || {rank:'', net:''}; const gr = gross[p.id];
-      h += `<div class="frow"><span><b>${esc(p.name)}</b> <span class="hint">${gr && gr.holes === 18 ? gr.strokes : '–'}</span></span><input class="inp num" data-frank="${esc(p.id)}" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="${esc(r.rank)}" aria-label="${esc(p.name)} の順位"><input class="inp num" data-fnet="${esc(p.id)}" type="text" inputmode="decimal" maxlength="6" value="${esc(r.net)}" aria-label="${esc(p.name)} のNET"></div>`; }
-    h += `<label class="chk"><input type="checkbox" id="finPublished" ${fin.published ? 'checked' : ''}><span>順位速報ページに公開する<small>公開すると、参加者の画面に「新ペリア 最終順位」が表示されます。</small></span></label></div>`;
+    h += `<div class="card" id="peoriaCard"><h2>新ペリアの設定（幹事だけに表示）</h2><p class="hint">隠しホールと計算結果は、下の「公開する」にチェックして保存するまで、参加者には見えません。</p>
+      <div class="field"><label for="pKind">方式</label><select class="sel" id="pKind">${Object.keys(PEORIA_KINDS).sort((x,y) => y - x).map(k => opt(k, fin.kind, PEORIA_KINDS[k])).join('')}</select></div>
+      <div class="field"><label>隠しホール（タップして選ぶ）</label>
+        <div class="hint" style="margin:0">OUT</div><div class="hgrid">${[1,2,3,4,5,6,7,8,9].map(hbtn).join('')}</div>
+        <div class="hint" style="margin:0">IN</div><div class="hgrid">${[10,11,12,13,14,15,16,17,18].map(hbtn).join('')}</div>
+        <div id="pCount" data-n="${hid.length}" style="font-size:13px;font-weight:700;color:${hid.length === fin.kind ? 'var(--ok)' : 'var(--amber)'}">選択 ${hid.length}/${fin.kind}（OUT ${nOut}・IN ${hid.length - nOut}）PAR計 ${hp}${hid.length === fin.kind && hp !== target ? `（標準は${target}）` : ''}</div>
+        <div class="row" style="margin-top:8px"><button class="btn" data-prand>ランダムに選ぶ</button><button class="btn" data-pclear>すべて解除</button></div></div>
+      <div class="field"><label for="pCap">隠しホールの打数の上限（ハンデの計算にだけ使用）</label><select class="sel" id="pCap">${Object.keys(PEORIA_CAPS).map(k => opt(k, fin.cap, PEORIA_CAPS[k])).join('')}</select></div>
+      <div class="field"><label for="pMax">ハンディキャップの上限</label><select class="sel" id="pMax">${opt(36, fin.maxHc, '36 まで')}${opt(40, fin.maxHc, '40 まで')}${opt(0, fin.maxHc, '上限なし')}</select></div>
+      <div class="field"><label for="pTie">NETが同じとき</label><select class="sel" id="pTie">${opt('hc', fin.tie, 'ハンディキャップの少ない人を上位にする')}${opt('tie', fin.tie, '同順位にする')}</select></div>
+      <p class="hint">HDCP ＝（隠しホールの合計 × ${mult} − コースのPAR ${parTotal}）× 0.8　／　NET ＝ グロス − HDCP</p>
+      <button class="btn primary block" id="calcPeoria" style="margin-top:12px">この設定で新ペリアを計算する</button></div>`;
+    h += `<div class="card" id="rankCard"><h2>最終順位</h2>${calcMsg ? `<div class="msg ${calcMsg.kind}" id="calcMsg">${esc(calcMsg.text)}</div>` : ''}<p class="hint" style="margin-bottom:8px">計算結果がここに入ります。手で直すこともできます（ゴルフ場の集計結果を入力する場合も、ここに入力します）。順位は必須、HDCP・NETは任意です。</p><div class="frow h"><span>名前（グロス）</span><span class="center">順位</span><span class="center">HDCP</span><span class="center">NET</span></div>`;
+    for (const p of sortedPlayers(pub)){ const r = fin.rows[p.id] || {rank:'', hc:'', net:''}; const gr = gross[p.id];
+      h += `<div class="frow"><span><b>${esc(p.name)}</b> <span class="hint">${gr && gr.holes === 18 ? gr.strokes : '–'}</span></span>`
+        + `<input class="inp num" data-frank="${esc(p.id)}" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="${esc(r.rank)}" aria-label="${esc(p.name)} の順位">`
+        + `<input class="inp num" data-fhc="${esc(p.id)}" type="text" inputmode="decimal" maxlength="6" value="${esc(r.hc)}" aria-label="${esc(p.name)} のHDCP">`
+        + `<input class="inp num" data-fnet="${esc(p.id)}" type="text" inputmode="decimal" maxlength="6" value="${esc(r.net)}" aria-label="${esc(p.name)} のNET"></div>`; }
+    h += `<label class="chk"><input type="checkbox" id="finPublished" ${fin.published ? 'checked' : ''}><span>参加者に公開する<small>公開すると、順位速報に「新ペリア 最終順位」と「結果発表」が表示されます。</small></span></label>
+      <label class="chk"><input type="checkbox" id="finReveal" ${fin.reveal ? 'checked' : ''}><span>隠しホールも公開する<small>結果発表のページに、隠しホールの番号を表示します。</small></span></label></div>`;
     return h;
   }
   async function act(fn, okText, after){
@@ -986,11 +1250,17 @@ function mountAdmin(el, cid, secFromUrl){
     if (tab === 'settings' && ed) edInput(e, ed);
     if (t.dataset.seh && se) se.vals[t.dataset.seh] = t.value;
     if (t.dataset.frank && fin) fin.rows[t.dataset.frank].rank = t.value;
+    if (t.dataset.fhc && fin) fin.rows[t.dataset.fhc].hc = t.value;
     if (t.dataset.fnet && fin) fin.rows[t.dataset.fnet].net = t.value; };
   el.onchange = e => { const t = e.target;
     if (t.id === 'sePlayer'){ formMsg = null; if (!t.value) se = null; else { const vals = {}; for (let h = 1; h <= 18; h++){ const v = scoreOf(scores, t.value, h); vals[h] = v === null ? '' : String(v); } se = {pid: t.value, vals, orig: {...vals}}; } baseSnap = snapOf(); renderTab(); return; }
     if (t.id === 'finClosed' && fin){ fin.closed = t.checked; return; }
     if (t.id === 'finPublished' && fin){ fin.published = t.checked; return; }
+    if (t.id === 'finReveal' && fin){ fin.reveal = t.checked; return; }
+    if (t.id === 'pKind' && fin){ fin.kind = +t.value; renderTab(); return; }
+    if (t.id === 'pCap' && fin){ fin.cap = t.value; return; }
+    if (t.id === 'pMax' && fin){ fin.maxHc = +t.value; return; }
+    if (t.id === 'pTie' && fin){ fin.tie = t.value; return; }
     if (tab === 'settings' && ed && edChange(e, ed)) renderTab(); };
   el.onclick = async e => {
     const t = e.target; let b;
@@ -999,7 +1269,7 @@ function mountAdmin(el, cid, secFromUrl){
     if ((b = t.closest('[data-atab]'))){
       if (b.dataset.atab === tab) return;
       if (snapOf() !== baseSnap && !(await ask('保存していない変更があります。\n破棄して移動しますか？', '破棄して移動', '戻る'))) return;
-      tab = b.dataset.atab; formMsg = null; ed = null; fin = null; se = null; baseSnap = ''; if (tab !== 'status') ls.del('created:' + cid); render(); return; }
+      tab = b.dataset.atab; formMsg = null; calcMsg = null; ed = null; fin = null; se = null; baseSnap = ''; if (tab !== 'status') ls.del('created:' + cid); render(); return; }
     if (t.closest('#saveScores') && se){
       const upd = {}; const bad = [];
       for (let h = 1; h <= 18; h++){ const raw = String(se.vals[h] ?? '').replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).trim();
@@ -1017,18 +1287,41 @@ function mountAdmin(el, cid, secFromUrl){
       const np = edToPub(ed); const upd = {'pub/name': np.name, 'pub/date': np.date, 'pub/course': np.course, 'pub/pars': np.pars, 'pub/groups': np.groups, 'pub/players': np.players};
       for (const gid of Object.keys(np.groups)) if (!(priv && priv.groupKeys && priv.groupKeys[gid])) upd['private/groupKeys/' + gid] = rid(16);
       for (const gid of Object.keys((priv && priv.groupKeys) || {})) if (!np.groups[gid]) upd['private/groupKeys/' + gid] = null;
-      for (const pid of Object.keys(pub.players || {})) if (!np.players[pid]){ upd['scores/' + pid] = null; if (pub.final && pub.final.rows && pub.final.rows[pid]) upd['pub/final/rows/' + pid] = null; }
+      for (const pid of Object.keys(pub.players || {})) if (!np.players[pid]){ upd['scores/' + pid] = null; if (pub.final && pub.final.rows && pub.final.rows[pid]) upd['pub/final/rows/' + pid] = null; if (priv && priv.final && priv.final.rows && priv.final.rows[pid]) upd['private/final/rows/' + pid] = null; }
       await act(() => store.update(`comps/${cid}`, upd), '変更を保存しました。', () => { const mine = ls.getJSON('mycomps') || []; const m = mine.find(c => c.cid === cid); if (m){ m.name = np.name; m.date = np.date; ls.setJSON('mycomps', mine); } ed = null; });
       return; }
+    if (tab === 'final' && fin){
+      if ((b = t.closest('[data-hh]'))){ const i = +b.dataset.hh - 1; fin.holes = fin.holes.slice(0, i) + (fin.holes[i] === '1' ? '0' : '1') + fin.holes.slice(i + 1); renderTab(); return; }
+      if (t.closest('[data-prand]')){ fin.holes = pickHidden(parsOf(pub), fin.kind); renderTab(); return; }
+      if (t.closest('[data-pclear]')){ fin.holes = '0'.repeat(18); renderTab(); return; }
+      if (t.closest('#calcPeoria')){
+        const n = hiddenList(fin.holes).length;
+        if (n !== fin.kind){ await ask(`隠しホールを ${fin.kind} ホール選んでください（いま ${n} ホール）。\n「ランダムに選ぶ」でも決められます。`, 'OK', ''); return; }
+        const res = calcPeoria(pub, scores, fin);
+        if (!res.ranked.length){ await ask('18ホールすべて入力済みの人がいないため、計算できません。', 'OK', ''); return; }
+        for (const id of Object.keys(fin.rows)) fin.rows[id] = {rank: '', hc: '', net: ''};
+        for (const r of res.ranked) fin.rows[r.id] = {rank: String(r.rank), hc: fmt1(r.hc10), net: fmt1(r.net10)};
+        calcMsg = {kind: res.skipped.length ? 'warn' : 'ok', text: `${res.ranked.length}名を計算しました。内容を確認して「保存する」を押してください。` + (res.skipped.length ? `（18ホール未入力のため対象外：${res.skipped.map(r => r.name).join('、')}）` : '')};
+        formMsg = null; renderTab(); const c = el.querySelector('#rankCard'); if (c) c.scrollIntoView({block: 'start'}); return; }
+      if (t.closest('[data-openresult]')){
+        if (snapOf() !== baseSnap){ await ask('保存していない変更があります。\n先に「保存する」を押してから開いてください。', 'OK', ''); return; }
+        location.hash = `r-${cid}`; return; }
+    }
     if (t.closest('#saveFinal') && fin){
       const rows = {}; const bad = [];
-      for (const p of sortedPlayers(pub)){ const r = fin.rows[p.id] || {}; const rk = String(r.rank || '').trim(); const net = String(r.net || '').trim().replace(/[０-９．]/g, c => c === '．' ? '.' : String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
-        if (rk === '' && net === '') continue;
-        if (!/^\d+$/.test(rk) || +rk < 1 || (net !== '' && !/^\d{1,3}(\.\d{1,2})?$/.test(net))){ bad.push(p.name); continue; }
-        rows[p.id] = net === '' ? {rank: +rk} : {rank: +rk, net}; }
-      if (bad.length){ formMsg = {kind: 'err', text: `入力を確認してください：${bad.join('、')}（順位は数字、NETは 72.4 のような数字）`}; renderTab(); return; }
-      if (fin.published && !Object.keys(rows).length){ formMsg = {kind: 'err', text: '公開するには、新ペリアの順位を入力してください。'}; renderTab(); return; }
-      await act(() => store.set(P(cid, 'pub/final'), {closed: fin.closed, published: fin.published, rows}), '保存しました。順位速報に反映されます。', () => { baseSnap = snapOf(); }); return; }
+      const z = v => String(v ?? '').trim().replace(/[０-９．－]/g, c => c === '．' ? '.' : c === '－' ? '-' : String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+      for (const p of sortedPlayers(pub)){ const r = fin.rows[p.id] || {}; const rk = z(r.rank), net = z(r.net), hc = z(r.hc);
+        if (rk === '' && net === '' && hc === '') continue;
+        if (!/^\d+$/.test(rk) || +rk < 1 || (net !== '' && !/^\d{1,3}(\.\d{1,2})?$/.test(net)) || (hc !== '' && !/^-?\d{1,2}(\.\d{1,2})?$/.test(hc))){ bad.push(p.name); continue; }
+        rows[p.id] = {rank: +rk, ...(net !== '' ? {net} : {}), ...(hc !== '' ? {hc} : {})}; }
+      if (bad.length){ formMsg = {kind: 'err', text: `入力を確認してください：${bad.join('、')}（順位は数字、HDCP・NETは 21.6 のような数字）`}; renderTab(); return; }
+      if (fin.published && !Object.keys(rows).length){ formMsg = {kind: 'err', text: '公開するには、順位を入力するか「新ペリアを計算する」を押してください。'}; renderTab(); return; }
+      /* 設定・隠しホール・未公開の結果は幹事専用の領域（private）へ。参加者が読める領域（pub）には、公開したときだけ結果を書く */
+      const privFinal = {kind: fin.kind, holes: fin.holes, cap: fin.cap, maxHc: fin.maxHc, tie: fin.tie, rows};
+      const pubFinal = {closed: fin.closed, published: fin.published};
+      if (fin.published){ pubFinal.rows = rows; pubFinal.kind = fin.kind; if (fin.reveal && hiddenList(fin.holes).length){ pubFinal.reveal = true; pubFinal.holes = fin.holes; } }
+      calcMsg = null;
+      await act(() => store.update(`comps/${cid}`, {'private/final': privFinal, 'pub/final': pubFinal}), fin.published ? '保存して公開しました。参加者の画面に反映されます。' : '保存しました（未公開：参加者には見えません）。', () => { baseSnap = snapOf(); }); return; }
     if (tab === 'settings' && ed){ const r = await edClick(e, ed, hasScores); if (r) renderTab(typeof r === 'string' ? r.slice(6) : null); }
   };
   async function enter(){
