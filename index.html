@@ -54,6 +54,10 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;bottom:-160px;z-inde
 [data-screen="rep"] .bar-s{font-size:14px;font-weight:600}
 .bar-link{flex:none;color:var(--ink);text-decoration:none;font-size:14px;font-weight:600;border:1px solid var(--ink);border-radius:999px;padding:8px 14px;white-space:nowrap}
 .goldline{height:3px;background:var(--gold)}
+/* スコア入力画面の「順位を見る」だけ、金色でピカッと脈打たせて目立たせる */
+[data-screen="rep"] .bar-link{border:0;color:#fff;font-weight:700;background:linear-gradient(135deg,#9C772A,#7A5C1B);padding:9px 16px;animation:rankPulse 1.6s ease-in-out infinite}
+@keyframes rankPulse{0%,100%{transform:scale(1);filter:brightness(1);box-shadow:0 0 0 0 rgba(214,178,94,0)}50%{transform:scale(1.07);filter:brightness(1.22);box-shadow:0 0 14px 3px rgba(214,178,94,.85)}}
+@media (prefers-reduced-motion:reduce){[data-screen="rep"] .bar-link{animation:none}}
 #app > .wrap,#app > main.wrap{display:flow-root;background:#fff;border:1px solid var(--main-line);border-top:0;border-radius:0 0 18px 18px;margin-bottom:22px;padding-bottom:4px}
 #app > .wrap:first-child{border-top:1px solid var(--main-line);border-radius:18px;margin-top:calc(16px + var(--sat))}
 #app > main.wrap.rep{margin-bottom:calc(290px + var(--sab))}   /* 画面下に固定した保存ボタンのぶんの余白 */
@@ -340,7 +344,7 @@ window.FIREBASE_CONFIG = {
 <!-- ▲▲ 接続設定ここまで ▲▲ -->
 <script type="module">
 /* =====================================================================
-   ゴルフコンペ LIVE順位速報  v1.15.0（幹事画面の「お客様に見える画面を確認する」の枠を薄いゴールドに）
+   ゴルフコンペ LIVE順位速報  v1.16.1（以前の初期値のままのコンペも、PARを東京クラシックとして扱う）
    画面: ホーム(作成) / 順位速報 #v-{コンペID} / 結果発表 #r-{コンペID} / スコア入力 #g-{コンペID}-{組ID}-{キー} / 幹事 #a-{コンペID}-{幹事キー}
    ===================================================================== */
 const FB_VER = '10.14.1';
@@ -424,7 +428,11 @@ const startLabel = s => s === 1 ? '1番（OUT）' : s === 10 ? '10番（IN）' :
 const fmtDiff = d => d === 0 ? 'E' : d > 0 ? `＋${d}` : `－${-d}`;
 const diffClass = d => d === 0 ? 'even' : d > 0 ? 'over' : 'under';
 const scoreOf = (scores, pid, h) => { const v = scores && scores[pid] && scores[pid]['h'+h]; return (typeof v === 'number' && v >= 1) ? v : null; };
-function parsOf(pub){ const s = String((pub && pub.pars) || ''); return Array.from({length:18}, (_, i) => +s[i] || DEFAULT_PARS[i]); }
+/* PARの初期値を東京クラシックに変える前（v1.11以前）に作られ、PARが当時の初期値のままのコンペは、
+   「PARを設定していない」とみなして現在の初期値（東京クラシック）で扱う。それ以降に作られたコンペは保存された値のまま。 */
+const OLD_DEFAULT_PARS = '443544345443544345', OLD_DEFAULT_UNTIL = Date.UTC(2026, 9, 9, 3, 0, 0);  // 2026-10-09 12:00 (日本時間)
+function parsOf(pub){ let s = String((pub && pub.pars) || ''); if (s === OLD_DEFAULT_PARS && +pub.createdAt < OLD_DEFAULT_UNTIL) s = '';
+  return Array.from({length:18}, (_, i) => +s[i] || DEFAULT_PARS[i]); }
 function sortedGroups(pub){ return Object.entries((pub && pub.groups) || {}).map(([id,g]) => ({id, n:+g.n || 0, start:+g.start || 1})).sort((a,b) => a.n - b.n); }
 function sortedPlayers(pub, gid){
   const gn = Object.fromEntries(sortedGroups(pub).map(g => [g.id, g.n]));
