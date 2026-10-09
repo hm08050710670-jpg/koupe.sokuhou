@@ -194,6 +194,10 @@ textarea.inp{min-height:180px;line-height:1.6}
 #adminCard .hint{color:#E2D8CB}
 #adminCard .hint b{color:#fff}
 #adminCard .url{background:rgba(255,255,255,.12);color:#F3E9DA}
+#previewCard{background:#F6EFDD;border-color:#D9C48F}   /* 「お客様に見える画面を確認する」の枠だけ、薄いゴールドに */
+#previewCard h2{color:#6E5416}
+#previewCard .hint{color:#7A6A45}
+#previewCard .btn{border-color:#D9C48F}
 .prog{height:10px;border-radius:99px;background:var(--bg2);overflow:hidden;margin:6px 0}
 .prog i{display:block;height:100%;background:var(--main2);border-radius:99px}
 .ghead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
@@ -336,7 +340,7 @@ window.FIREBASE_CONFIG = {
 <!-- ▲▲ 接続設定ここまで ▲▲ -->
 <script type="module">
 /* =====================================================================
-   ゴルフコンペ LIVE順位速報  v1.13.0（パー3＝薄い青・パー5＝薄い赤の色分け／PAR設定のマスに「パー◯」を表示）
+   ゴルフコンペ LIVE順位速報  v1.15.0（幹事画面の「お客様に見える画面を確認する」の枠を薄いゴールドに）
    画面: ホーム(作成) / 順位速報 #v-{コンペID} / 結果発表 #r-{コンペID} / スコア入力 #g-{コンペID}-{組ID}-{キー} / 幹事 #a-{コンペID}-{幹事キー}
    ===================================================================== */
 const FB_VER = '10.14.1';
@@ -394,10 +398,10 @@ function toast(msg){
   const n = document.createElement('div'); n.className = 'toast'; n.textContent = msg; document.body.appendChild(n);
   setTimeout(() => n.remove(), 2200);
 }
-function ask(msg, okLabel = 'OK', cancelLabel = 'キャンセル'){
+function ask(msg, okLabel = 'OK', cancelLabel = 'キャンセル', danger = false){
   return new Promise(res => {
     const o = document.createElement('div'); o.className = 'ov';
-    o.innerHTML = `<div class="ovbox" role="dialog" aria-modal="true"><p>${esc(msg)}</p><div class="row">${cancelLabel ? `<button class="btn" data-a="0">${esc(cancelLabel)}</button>` : ''}<button class="btn primary" data-a="1">${esc(okLabel)}</button></div></div>`;
+    o.innerHTML = `<div class="ovbox" role="dialog" aria-modal="true"><p>${esc(msg)}</p><div class="row">${cancelLabel ? `<button class="btn" data-a="0">${esc(cancelLabel)}</button>` : ''}<button class="btn ${danger ? 'danger' : 'primary'}" data-a="1">${esc(okLabel)}</button></div></div>`;
     o.onclick = e => { const b = e.target.closest('[data-a]'); if (b){ o.remove(); res(b.dataset.a === '1'); } };
     document.body.appendChild(o);
   });
@@ -1198,13 +1202,49 @@ function edToPub(ed){
    ===================================================================== */
 function mountHome(el){
   el.dataset.screen = 'home';
-  const mine = (ls.getJSON('mycomps') || []).filter(c => c && c.cid);
+  const tok = routeTok; const alive = () => tok === routeTok; let delBusy = '';
+  const myList = () => (ls.getJSON('mycomps') || []).filter(c => c && c.cid);
+  const render = () => {
+  const mine = myList();
   let h = pageHead('ゴルフコンペ LIVE順位速報', '各組の代表者が入力するだけで、全員がリアルタイムで順位を見られます');
   h += `<div class="wrap"><div class="card"><h2>幹事の方</h2><p style="margin:0 0 12px">コンペを作成すると、順位速報のURLと、各組のスコア入力用URLが発行されます。LINEで送るだけで準備完了です。</p><a class="btn primary block big" href="#new" id="goCreate">コンペを作成する</a></div>`;
-  if (mine.length){ h += `<div class="card"><h2>この端末で作成したコンペ</h2><ul class="plain">` + mine.map(c => `<li><b>${esc(c.name)}</b><div class="hint">${esc(fmtDate(c.date))}</div><div class="row" style="margin-top:8px"><a class="btn" href="#a-${esc(c.cid)}${c.a ? '-' + esc(c.a) : ''}">幹事の管理画面</a><a class="btn" href="#v-${esc(c.cid)}">順位速報</a></div></li>`).join('') + `</ul></div>`; }
+  if (mine.length){ h += `<div class="card" id="mineCard"><h2>この端末で作成したコンペ</h2><ul class="plain">` + mine.map(c => `<li data-mine="${esc(c.cid)}"><div style="display:flex;align-items:flex-start;gap:8px"><div style="flex:1;min-width:0"><b>${esc(c.name)}</b><div class="hint">${esc(fmtDate(c.date))}</div></div><button class="btn danger" data-delcomp="${esc(c.cid)}" style="flex:none" ${delBusy ? 'disabled' : ''}>${delBusy === c.cid ? '確認中…' : '削除'}</button></div><div class="row" style="margin-top:8px"><a class="btn" href="#a-${esc(c.cid)}${c.a ? '-' + esc(c.a) : ''}">幹事の管理画面</a><a class="btn" href="#v-${esc(c.cid)}">順位速報</a></div></li>`).join('') + `</ul></div>`; }
   h += `<div class="card"><h2>参加者・各組の代表者の方</h2><p style="margin:0">幹事からLINEなどで届いたURLを開いてください。アプリのインストールや会員登録は不要です。</p></div></div>`;
   el.innerHTML = h;
-  return () => {};
+  };
+  /* この端末に残っている、そのコンペの控え（幹事キー・未送信スコア・入力権限など）を消す */
+  const forget = cid => {
+    ls.setJSON('mycomps', (ls.getJSON('mycomps') || []).filter(c => c && c.cid !== cid));
+    const has = k => k.split(':').includes(cid);
+    try{ const ks = []; for (let i = 0; i < localStorage.length; i++){ const k = localStorage.key(i); if (k && k.startsWith('golflive:') && has(k.slice(9))) ks.push(k.slice(9)); } ks.forEach(k => ls.del(k)); }catch(e){}
+    Object.keys(mem).filter(has).forEach(k => ls.del(k)); delete memo[cid];
+  };
+  async function delComp(cid){
+    const c = myList().find(x => x.cid === cid); if (!c || delBusy) return;
+    const name = c.name || 'このコンペ';
+    delBusy = cid; render();
+    const done = msg => { delBusy = ''; if (alive()) render(); if (msg) toast(msg); };
+    let exists;
+    try{ exists = (await withTimeout(store.get(`comps/${cid}/pub/name`), 8000)) != null; }
+    catch(e){ console.error(e); await ask('通信できないため、削除できませんでした。\n電波の良い場所で、もう一度お試しください。', 'OK', ''); return done(); }
+    if (!exists){ /* デモモードで作成したもの・すでに削除されたもの：この端末の一覧に名前が残っているだけ */
+      if (await ask(`「${name}」のデータは見つかりませんでした（削除済み、またはデモモードで作成したコンペです）。\nこの端末の一覧から消しますか？`, '一覧から消す', 'やめる', true)){ forget(cid); return done('一覧から消しました'); }
+      return done(); }
+    if (!await ask(`「${name}」を削除しますか？\n\nスコア・順位・結果発表のデータがすべて消え、参加者に送ったURLも開けなくなります。\n元に戻すことはできません。`, '削除する', 'やめる', true)) return done();
+    let p; try{ p = store.set(`comps/${cid}`, null); }catch(e){ p = Promise.reject(e); }
+    const fin = () => { forget(cid); done('削除しました'); };
+    const failed = async e => { console.error(e);
+      await ask(isDenied(e) ? `この端末では幹事であることを確認できないため、「${name}」を削除できませんでした。\n先に「幹事の管理画面」を開いて幹事パスワードを入力してから、もう一度お試しください。` : '削除できませんでした。もう一度お試しください。', 'OK', ''); done(); };
+    try{ await withTimeout(p, 15000); fin(); }
+    catch(e){
+      if (e && e.code === 'TIMEOUT'){ /* 送信は取り消せないので、結果が出るまで待つ */
+        p.then(fin, failed); await ask('まだ削除を確認できていません（通信待ち）。\n電波が戻ると削除されます。', 'OK', ''); return; }
+      await failed(e); }
+  }
+  const onClick = e => { const b = e.target.closest('[data-delcomp]'); if (b){ e.preventDefault(); delComp(b.dataset.delcomp); } };
+  el.addEventListener('click', onClick);
+  render();
+  return () => { el.removeEventListener('click', onClick); };
 }
 function mountCreate(el){
   el.dataset.screen = 'create';
