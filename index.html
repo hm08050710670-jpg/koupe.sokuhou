@@ -167,11 +167,16 @@ textarea.inp{min-height:180px;line-height:1.6}
 .sinput::placeholder{color:#BDB4AA;font-weight:500}
 .striplabel{font-size:12px;color:var(--muted);margin:16px 0 6px}
 .strip{display:grid;grid-template-columns:repeat(9,1fr);gap:5px}
-.chip{height:38px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--muted);font-size:14px;font-weight:700;padding:0;position:relative}
+.chip{height:46px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--muted);font-size:14px;font-weight:700;padding:0;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;line-height:1}
+.chip small{font-size:9px;font-weight:400;letter-spacing:-.02em;white-space:nowrap;opacity:.9}
+@media (max-width:359px){.chip small{font-size:8px;letter-spacing:-.04em}}
+.chip.p3{background:#E4EFFA;border-color:#B3CEEA} .chip.p3 small{color:#2467AD}
+.chip.p5{background:#FBE8E6;border-color:#EFBCB6} .chip.p5 small{color:#B5433A}
 .chip.done{background:var(--main);border-color:var(--main);color:#fff}
 .chip.part{border:2px solid #D9A400;color:var(--amber);background:var(--amber-soft)}
 .chip.pend{background:#D9A400;border-color:#D9A400;color:#fff}
 .chip.cur{box-shadow:0 0 0 3px var(--gold)}
+.chip.done.p3 small{color:#A9CEF3} .chip.done.p5 small{color:#F6B8B1} .chip.pend.p3 small,.chip.pend.p5 small{color:inherit}
 .legend{font-size:12px;color:var(--muted);margin-top:6px;display:flex;gap:12px;flex-wrap:wrap}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px;border:1px solid var(--line)}
 .savebar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:10px 0 calc(10px + var(--sab));box-shadow:0 -4px 16px rgba(0,0,0,.06)}
@@ -199,9 +204,12 @@ textarea.inp{min-height:180px;line-height:1.6}
 .prow select{flex:none;width:84px}
 .xbtn{flex:none;width:44px;height:44px;border-radius:10px;border:1px solid #E8C4C0;background:#fff;color:var(--red);font-size:20px;font-weight:700;padding:0}
 .pars{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin:4px 0 10px}
-.parc{border:1px solid var(--main-line);border-radius:10px;background:#fff;padding:4px 0 6px;text-align:center}
+.parc{border:1px solid var(--main-line);border-radius:10px;background:#fff;padding:4px 0 5px;text-align:center}
 .parc span{display:block;font-size:11px;color:var(--muted)}
 .parc b{display:block;font-size:20px;color:var(--main)}
+.parc small{display:block;font-size:8px;font-weight:400;color:var(--muted);line-height:1;margin-top:1px;letter-spacing:-.03em;white-space:nowrap}
+.parc.p3{background:#E4EFFA;border-color:#B3CEEA} .parc.p3 small{color:#2467AD}
+.parc.p5{background:#FBE8E6;border-color:#EFBCB6} .parc.p5 small{color:#B5433A}
 .sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .scell{border:1px solid var(--line);border-radius:10px;padding:6px 8px 8px;display:block}
 .scell span{display:block;font-size:12px;color:var(--muted);line-height:1.4;white-space:nowrap;margin-bottom:4px}
@@ -328,13 +336,13 @@ window.FIREBASE_CONFIG = {
 <!-- ▲▲ 接続設定ここまで ▲▲ -->
 <script type="module">
 /* =====================================================================
-   ゴルフコンペ LIVE順位速報  v1.11.1（デモモードでURLを共有できない理由を画面に表示）
+   ゴルフコンペ LIVE順位速報  v1.13.0（パー3＝薄い青・パー5＝薄い赤の色分け／PAR設定のマスに「パー◯」を表示）
    画面: ホーム(作成) / 順位速報 #v-{コンペID} / 結果発表 #r-{コンペID} / スコア入力 #g-{コンペID}-{組ID}-{キー} / 幹事 #a-{コンペID}-{幹事キー}
    ===================================================================== */
 const FB_VER = '10.14.1';
 const SAVE_TIMEOUT_MS = 8000;
 const MAX_STROKES = 30;
-const DEFAULT_PARS = [4,4,3,5,4,4,3,4,5, 4,4,3,5,4,4,3,4,5];
+const DEFAULT_PARS = [4,4,5,4,3,4,3,5,4, 4,4,3,4,3,5,4,4,5]; // 東京クラシッククラブのスコアカード（OUT36・IN36・計72）
 
 const app = document.getElementById('app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -919,11 +927,11 @@ function mountRep(el, cid, gid, key){
     clearTimeout(flashT); if (flash) flashT = setTimeout(() => { flash = null; const f = el.querySelector('#flash'); if (f) f.remove(); }, 6000); };
 
   function stripHtml(){
-    const o = order();
+    const o = order(); const ps = parsOf(pub);
     return `<div class="striplabel">入力状況（タップでそのホールへ移動・修正できます）</div><div class="strip">` + o.map(h => {
       const n = filled(h), m = members().length;
       const c = pend[h] ? 'pend' : (m && n === m) ? 'done' : n > 0 ? 'part' : '';
-      return `<button class="chip ${c} ${h === hole && !done ? 'cur' : ''}" data-goto="${h}" aria-label="${h}番ホール">${h}</button>`; }).join('')
+      return `<button class="chip ${c} ${h === hole && !done ? 'cur' : ''}${ps[h - 1] === 3 ? ' p3' : ps[h - 1] === 5 ? ' p5' : ''}" data-goto="${h}" aria-label="${h}番ホール パー${ps[h - 1]}"><span>${h}</span><small>パー${ps[h - 1]}</small></button>`; }).join('')
       + `</div><div class="legend"><span><i style="background:var(--main);border-color:var(--main)"></i>保存済み</span><span><i style="background:#D9A400;border-color:#D9A400"></i>未送信</span><span><i style="background:var(--amber-soft);border-color:#D9A400"></i>一部未入力</span></div>`;
   }
   function pendHtml(){
@@ -1141,7 +1149,7 @@ function edHtml(ed, mode){
   h += `<div class="card"><h2>${mode === 'create' ? '④ ' : ''}各ホールのPAR</h2><p class="hint" style="margin-bottom:8px">数字をタップすると 3 → 4 → 5 → 6 と切り替わります。ゴルフ場のスコアカードに合わせてください。</p>`;
   for (const [label, from] of [['OUT（1〜9番）', 0], ['IN（10〜18番）', 9]]){
     h += `<div style="font-size:13px;font-weight:700;margin-top:6px">${label}　計 <span class="num">${sum(ed.pars.slice(from, from+9))}</span></div><div class="pars">`
-      + ed.pars.slice(from, from+9).map((p, i) => `<button class="parc" data-par="${from+i}" aria-label="${from+i+1}番ホールのPAR"><span>${from+i+1}</span><b class="num">${p}</b></button>`).join('') + `</div>`;
+      + ed.pars.slice(from, from+9).map((p, i) => `<button class="parc${p === 3 ? ' p3' : p === 5 ? ' p5' : ''}" data-par="${from+i}" aria-label="${from+i+1}番ホールのPAR"><span>${from+i+1}</span><b class="num">${p}</b><small>パー${p}</small></button>`).join('') + `</div>`;
   }
   h += `<div style="font-weight:700">合計 PAR <span class="num" id="parTotal">${sum(ed.pars)}</span></div></div>`;
   if (mode === 'create'){
