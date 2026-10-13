@@ -48,9 +48,9 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;bottom:-160px;z-inde
 .bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .bar-t{font-size:18px;font-weight:700;line-height:1.3;word-break:break-word;text-wrap:balance}
 .bar-s{font-size:13px;color:var(--muted);margin-top:2px;word-break:break-word}
-[data-screen="viewer"] .bar-t{font-size:29px;font-weight:800;line-height:1.22;letter-spacing:.01em}
+[data-screen="viewer"] .bar-t,[data-screen="pairing"] .bar-t{font-size:29px;font-weight:800;line-height:1.22;letter-spacing:.01em}
 [data-screen="home"] .bar-t{font-size:24px;font-weight:800;line-height:1.25}
-[data-screen="viewer"] .bar-s,[data-screen="home"] .bar-s{font-size:14px;margin-top:7px}
+[data-screen="viewer"] .bar-s,[data-screen="pairing"] .bar-s,[data-screen="home"] .bar-s{font-size:14px;margin-top:7px}
 [data-screen="rep"] .bar-s{font-size:14px;font-weight:600}
 .bar-link{flex:none;color:var(--ink);text-decoration:none;font-size:14px;font-weight:600;border:1px solid var(--ink);border-radius:999px;padding:8px 14px;white-space:nowrap}
 .goldline{height:3px;background:var(--gold)}
@@ -80,6 +80,8 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;bottom:-160px;z-inde
 .btn.big{min-height:60px;font-size:20px;border-radius:14px}
 .btn.line{background:#06C755;border-color:#06C755;color:#fff}
 .btn.danger{color:var(--red);border-color:#E8C4C0}
+.btn.splitgo{border:0;color:#fff;background:linear-gradient(135deg,#9C772A,#7A5C1B);min-height:52px;font-size:16px}   /* 「ここをクリックして組み分けする」を金色で目立たせる */
+.btn.splitgo:active{background:#6B5018}
 .btn[disabled]{opacity:.45;cursor:default}
 .card{border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0;background:var(--bg)}
 .card h2{margin:0 0 10px;font-size:17px;color:var(--main)}
@@ -148,6 +150,19 @@ textarea.inp{min-height:180px;line-height:1.6}
 .hl.fin{color:var(--main2)}
 .lbr.wait .pn{font-weight:500;color:var(--muted)}
 .sect{font-size:13px;font-weight:700;color:var(--muted);background:var(--bg2);padding:6px 10px;border-radius:8px;margin:14px 0 0}
+.pair-t{font-size:20px;font-weight:800;margin:14px 0 2px}
+.pair-n{font-size:13px;color:var(--muted);margin:0 0 2px}
+/* 組み合わせ（スタート前）：組ごとのカード */
+.pgc{border-radius:14px;overflow:hidden;border:1px solid var(--main);margin:11px 0;background:#fff}
+.pgc-h{background:var(--main);color:#fff;display:flex;align-items:center;gap:10px;padding:8px 14px}
+.pgc-h b{font-size:18px;font-weight:800;white-space:nowrap}
+.pgc-h .pgt{font-size:18px;font-weight:800;color:#E9CF8E;white-space:nowrap}
+.pgc-h .pgs{margin-left:auto;font-size:12px;font-weight:700;color:var(--main);background:#E9CF8E;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.pgc-n{display:grid;grid-template-columns:1fr 1fr;font-size:17px;font-weight:600}
+.pgc-n > .pgp{padding:11px 14px;border-top:1px solid var(--line);min-width:0;word-break:break-word}
+.pgc-n > .pgp:nth-child(-n+2){border-top:0}
+.pgc-n > .pgp:nth-child(odd){border-right:1px solid var(--line)}
+@media (max-width:359px){.pgc-h{padding:8px 10px;gap:7px} .pgc-h b,.pgc-h .pgt{font-size:17px} .pgc-h .pgs{font-size:11px;padding:3px 8px} .pgc-n{font-size:16px} .pgc-n > .pgp{padding:10px}}
 .foot{font-size:13px;color:var(--muted);text-align:center;padding:14px 0 calc(28px + var(--sab))}
 .foot b{color:var(--ink)}
 .backrep{position:sticky;bottom:0;background:linear-gradient(rgba(255,255,255,0),#fff 30%);padding:18px 0 calc(12px + var(--sab))}
@@ -208,6 +223,13 @@ textarea.inp{min-height:180px;line-height:1.6}
 .ghead b{font-size:17px;color:var(--main)}
 .ghead select,.prow select{min-height:44px;border:1px solid #CFC6BA;border-radius:10px;background:#fff;padding:4px 8px;font-size:16px}
 .prow{display:flex;gap:6px;align-items:center;margin:6px 0}
+/* スタート時間の入力（iPhoneの時刻入力欄は幅が広がりやすいので、幅を固定して枠内に収める） */
+.tinp{-webkit-appearance:none;appearance:none;box-sizing:border-box;flex:none;width:128px;min-width:0;max-width:100%;min-height:44px;border:1px solid #CFC6BA;border-radius:10px;background:#fff;padding:4px 8px;font-size:16px;text-align:center;color:var(--ink)}
+.gtime{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px;font-size:13px;color:var(--muted)}
+.tfill{border:1px dashed var(--main-line);border-radius:12px;padding:10px 12px;margin:0 0 4px;background:#fff}
+.tfill-t{font-size:13px;font-weight:700;margin-bottom:6px}
+.tfill .row{gap:8px 10px} .tfill label{font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.tfill .tstep{width:54px}
 .prow .inp{flex:1 1 auto;min-width:0}
 .prow select{flex:none;width:84px}
 .xbtn{flex:none;width:44px;height:44px;border-radius:10px;border:1px solid #E8C4C0;background:#fff;color:var(--red);font-size:20px;font-weight:700;padding:0}
@@ -344,8 +366,8 @@ window.FIREBASE_CONFIG = {
 <!-- ▲▲ 接続設定ここまで ▲▲ -->
 <script type="module">
 /* =====================================================================
-   ゴルフコンペ LIVE順位速報  v1.16.1（以前の初期値のままのコンペも、PARを東京クラシックとして扱う）
-   画面: ホーム(作成) / 順位速報 #v-{コンペID} / 結果発表 #r-{コンペID} / スコア入力 #g-{コンペID}-{組ID}-{キー} / 幹事 #a-{コンペID}-{幹事キー}
+   ゴルフコンペ LIVE順位速報  v1.20.0（組み合わせページ＋URLを追加／3名以下の組に「＋ この組に追加」）
+   画面: ホーム(作成) / 順位速報 #v-{コンペID} / 組み合わせ #p-{コンペID} / 結果発表 #r-{コンペID} / スコア入力 #g-{コンペID}-{組ID}-{キー} / 幹事 #a-{コンペID}-{幹事キー}
    ===================================================================== */
 const FB_VER = '10.14.1';
 const SAVE_TIMEOUT_MS = 8000;
@@ -433,7 +455,10 @@ const scoreOf = (scores, pid, h) => { const v = scores && scores[pid] && scores[
 const OLD_DEFAULT_PARS = '443544345443544345', OLD_DEFAULT_UNTIL = Date.UTC(2026, 9, 9, 3, 0, 0);  // 2026-10-09 12:00 (日本時間)
 function parsOf(pub){ let s = String((pub && pub.pars) || ''); if (s === OLD_DEFAULT_PARS && +pub.createdAt < OLD_DEFAULT_UNTIL) s = '';
   return Array.from({length:18}, (_, i) => +s[i] || DEFAULT_PARS[i]); }
-function sortedGroups(pub){ return Object.entries((pub && pub.groups) || {}).map(([id,g]) => ({id, n:+g.n || 0, start:+g.start || 1})).sort((a,b) => a.n - b.n); }
+const TIME_RE = /^([01]?\d|2[0-3]):[0-5]\d$/;   /* スタート時間 "09:09"（任意） */
+const fmtTee = t => TIME_RE.test(t || '') ? `${+t.split(':')[0]}:${t.split(':')[1]}` : '';
+const startPill = s => s === 1 ? 'OUT　1番スタート' : s === 10 ? 'IN　10番スタート' : `${s}番スタート`;
+function sortedGroups(pub){ return Object.entries((pub && pub.groups) || {}).map(([id,g]) => ({id, n:+g.n || 0, start:+g.start || 1, t: typeof g.t === 'string' && TIME_RE.test(g.t) ? g.t : ''})).sort((a,b) => a.n - b.n); }
 function sortedPlayers(pub, gid){
   const gn = Object.fromEntries(sortedGroups(pub).map(g => [g.id, g.n]));
   return Object.entries((pub && pub.players) || {}).map(([id,p]) => ({id, name:p.name, g:p.g, o:+p.o || 0, gn: gn[p.g] || 0}))
@@ -612,6 +637,7 @@ let store = null, bootError = null;
 const P = (cid, sub) => `comps/${cid}/${sub}`;
 const baseUrl = () => location.href.split('#')[0];
 const viewerUrl = cid => `${baseUrl()}#v-${cid}`;
+const pairUrl = cid => `${baseUrl()}#p-${cid}`;
 const groupUrl = (cid, gid, key) => `${baseUrl()}#g-${cid}-${gid}-${key}`;
 const adminUrl = (cid, sec) => `${baseUrl()}#a-${cid}-${sec}`;
 const lineHref = text => `https://line.me/R/share?text=${encodeURIComponent(text)}`;
@@ -704,10 +730,11 @@ function route(){
   const parts = hash.trim().split('-');
   const ok = s => /^[a-z0-9]+$/i.test(s || '');
   /* スコア入力画面には出さない（誤タップで入力画面を離れないように。順位速報へは「順位を見る」で行き来できる） */
-  if (parts[0] === 'v' && ok(parts[1])) navBack = {show: navStack.length > 1, fallback: null};
+  if ((parts[0] === 'v' || parts[0] === 'p') && ok(parts[1])) navBack = {show: navStack.length > 1, fallback: null};
   else if (parts[0] === 'r' && ok(parts[1])) navBack = {show: true, fallback: (parts[2] === 'sample' ? 'a-' : 'v-') + parts[1]};   /* 見本は幹事の管理画面へ戻る */
   else if ((parts[0] === 'a' && ok(parts[1])) || parts[0] === 'new') navBack = {show: true, fallback: ''};
   if (parts[0] === 'v' && ok(parts[1])) unmount = mountViewer(app, parts[1]);
+  else if (parts[0] === 'p' && ok(parts[1])) unmount = mountPairing(app, parts[1]);
   else if (parts[0] === 'g' && ok(parts[1]) && ok(parts[2]) && ok(parts[3])) unmount = mountRep(app, parts[1], parts[2], parts[3]);
   else if (parts[0] === 'a' && ok(parts[1])) unmount = mountAdmin(app, parts[1], ok(parts[2]) ? parts[2] : '');
   else if (parts[0] === 'r' && ok(parts[1])) unmount = mountResult(app, parts[1], parts[2] === 'sample');
@@ -774,8 +801,9 @@ function mountViewer(el, cid){
       }
       h += `</div>`;
       if (b.rest.length){
-        h += `<div class="sect">${b.isFinal ? '18ホール未完了（順位対象外）' : 'スタート前'}</div><div id="restBoard" class="${b.isFinal ? '' : 'inplay'}">`;
-        for (const r of b.rest) h += `<div class="lbr wait" data-pid="${esc(r.id)}" data-holes="${r.holes}"><span><span class="rk none">–</span></span><span class="pn">${nm(r.name)} <span class="pg">${r.gn}組</span></span><span class="sc num" style="font-size:16px;color:var(--muted)">${r.holes ? fmtDiff(r.diff) : ''}</span><span class="hl num">${r.holes ? `<b>${r.holes}</b>ホール<br>終了` : '未入力'}</span></div>`;
+        h += `<div class="sect">${b.isFinal ? '18ホール未完了（順位対象外）' : '組み合わせ（スタート前）'}</div><div id="restBoard" class="${b.isFinal ? '' : 'inplay'}">`;
+        if (!b.isFinal) h += pairingCardsHtml(pub, b.rest);   /* スタート前の人は、組ごとの「組み合わせ」カードで表示（スタート時間・スタートホールつき） */
+        else for (const r of b.rest) h += `<div class="lbr wait" data-pid="${esc(r.id)}" data-holes="${r.holes}"><span><span class="rk none">–</span></span><span class="pn">${nm(r.name)} <span class="pg">${r.gn}組</span></span><span class="sc num" style="font-size:16px;color:var(--muted)">${r.holes ? fmtDiff(r.diff) : ''}</span><span class="hl num">${r.holes ? `<b>${r.holes}</b>ホール<br>終了` : '未入力'}</span></div>`;
         h += `</div>`;
       }
     }
@@ -810,6 +838,39 @@ function mountViewer(el, cid){
   ];
   const t = setTimeout(() => { if (!got){ slow = true; render(); } }, 8000);
   el.onclick = e => { const b = e.target.closest('[data-tab]'); if (b){ tab = b.dataset.tab; render(); } };
+  render();
+  return () => { offs.forEach(f => f()); clearTimeout(t); };
+}
+
+/* =====================================================================
+   組み合わせ（コンペ前に参加者全員へ送るページ・閲覧のみ）
+   ===================================================================== */
+function pairingCardsHtml(pub, players){   /* players: 表示する参加者（省略時は全員） */
+  const ps = players || sortedPlayers(pub); let h = '';
+  for (const g of sortedGroups(pub)){ const m = ps.filter(p => p.g === g.id); if (!m.length) continue;
+    h += `<div class="pgc" data-pgc="${esc(g.id)}"><div class="pgc-h"><b>${g.n}組</b>${g.t ? `<span class="pgt num">${fmtTee(g.t)}</span>` : ''}<span class="pgs">${startPill(g.start)}</span></div><div class="pgc-n">`
+      + m.map(p => `<span class="pgp" data-pid="${esc(p.id)}" data-holes="0">${nm(p.name)}</span>`).join('') + `</div></div>`; }
+  return h;
+}
+function mountPairing(el, cid){
+  el.dataset.screen = 'pairing';
+  let pub, got = false, slow = false, failed = false; const tok = routeTok;
+  if (memo[cid] && 'pub' in memo[cid]){ pub = memo[cid].pub; got = true; }
+  const render = () => {
+    if (tok !== routeTok) return;
+    if (failed){ el.innerHTML = simplePage('組み合わせ', `<div class="msg err">組み合わせを読み込めませんでした。URLが正しいか確認してください。</div>`); return; }
+    if (!got){ el.innerHTML = simplePage('組み合わせ', `<div class="pad center" style="color:var(--muted)">読み込み中…${slow ? '<div class="msg warn" style="margin-top:16px">通信に時間がかかっています。電波の良い場所でお待ちください。</div>' : ''}</div>`); return; }
+    if (!pub){ el.innerHTML = simplePage('組み合わせ', `<div class="msg err">コンペが見つかりません。<small>URLが正しいか、幹事に確認してください。</small></div>${demoWhy()}`); return; }
+    const sub = [fmtDate(pub.date), pub.course].filter(Boolean).join('・');
+    let h = pageHead(pub.name || 'ゴルフコンペ', sub, `<a class="bar-link" href="#v-${esc(cid)}">順位速報</a>`);
+    h += `<div class="wrap"><div class="pair-t">組み合わせ</div><p class="pair-n">組・スタート時間・スタートホール・メンバーです。幹事が変更すると、この画面も自動で更新されます。</p>`;
+    h += `<div id="pairing">${pairingCardsHtml(pub)}</div>`;
+    h += `<a class="btn primary block big" id="toViewer" href="#v-${esc(cid)}" style="margin-top:18px">順位速報を見る</a>`;
+    h += `<div class="foot">当日はこのページから「順位速報を見る」でライブの順位が見られます</div></div>`;
+    el.innerHTML = h; fitTitle(el);
+  };
+  const offs = [store.watch(P(cid, 'pub'), v => { pub = v; got = true; memoSet(cid, 'pub', v); render(); }, () => { failed = true; render(); })];
+  const t = setTimeout(() => { if (!got){ slow = true; render(); } }, 8000);
   render();
   return () => { offs.forEach(f => f()); clearTimeout(t); };
 }
@@ -1122,13 +1183,15 @@ function mountRep(el, cid, gid, key){
 /* =====================================================================
    コンペ情報の編集フォーム（作成・設定で共用）
    ===================================================================== */
-function newEd(){ return {name:'', date: todayStr(), course:'', pars:[...DEFAULT_PARS], groups:[], players:[], bulk:'', pw:''}; }
+function newEd(){ return {name:'', date: todayStr(), course:'', pars:[...DEFAULT_PARS], groups:[], players:[], bulk:'', pw:'', t0:'09:09', tstep:'8'}; }
 function edFromPub(pub){ return {name: pub.name || '', date: pub.date || '', course: pub.course || '', pars: parsOf(pub),
-  groups: sortedGroups(pub).map(g => ({id:g.id, start:g.start})), players: sortedPlayers(pub).map(p => ({id:p.id, name:p.name, g:p.g})), bulk:'', pw:''}; }
+  groups: sortedGroups(pub).map(g => ({id:g.id, start:g.start, t:g.t})), players: sortedPlayers(pub).map(p => ({id:p.id, name:p.name, g:p.g})), bulk:'', pw:'', t0:'09:09', tstep:'8'}; }
 function edSplit(ed){
-  const names = ed.bulk.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+  /* 空行（スペースだけの行も含む）があれば、そこで組を区切る。区切りの中は上から4名ずつ。空行がなければ全体を上から4名ずつ */
+  const blocks = [[]];
+  for (const raw of ed.bulk.split(/\r?\n/)){ const name = raw.trim(); if (name) blocks[blocks.length-1].push(name); else if (blocks[blocks.length-1].length) blocks.push([]); }
   ed.groups = []; ed.players = [];
-  names.forEach((name, i) => { if (i % 4 === 0) ed.groups.push({id: 'g' + rid(4), start: 1}); ed.players.push({id: 'p' + rid(6), name, g: ed.groups[ed.groups.length-1].id}); });
+  for (const names of blocks) names.forEach((name, i) => { if (i % 4 === 0) ed.groups.push({id: 'g' + rid(4), start: 1}); ed.players.push({id: 'p' + rid(6), name, g: ed.groups[ed.groups.length-1].id}); });
 }
 function edHtml(ed, mode){
   const sum = a => a.reduce((x,y) => x + y, 0);
@@ -1139,21 +1202,24 @@ function edHtml(ed, mode){
   if (mode === 'create'){
     h += `<div class="card"><h2>② 参加者</h2><div class="field"><label for="edBulk">参加者名（1行に1名）</label>
       <textarea class="inp" id="edBulk" data-ed="bulk" placeholder="田中 健一&#10;佐藤 大輔&#10;鈴木 拓也&#10;山田 翔太&#10;…">${esc(ed.bulk)}</textarea>
-      <p class="hint">フルネームで入力すると、順位表・結果発表・成績表にそのまま表示されます。LINEなどの名簿をそのまま貼り付けできます。上から4名ずつ組に分けます（あとで自由に変更できます）。</p></div>
-      <button class="btn block" data-split>${ed.players.length ? '名簿から組分けをやり直す' : '4名ずつ組分けする'}</button></div>`;
+      <p class="hint">フルネームで入力すると、順位表・結果発表・成績表にそのまま表示されます。LINEなどの名簿をそのまま貼り付けできます。上から4名ずつ組に分けます。空行を入れると、そこで組を区切ります（あとで自由に変更できます）。</p></div>
+      <button class="btn block${ed.players.length ? '' : ' splitgo'}" data-split>${ed.players.length ? '名簿から組分けをやり直す' : 'ここをクリックして組み分けする'}</button></div>`;
   }
   if (mode !== 'create' || ed.players.length){
-    h += `<div class="card" id="edGroups"><h2>${mode === 'create' ? '③ ' : ''}組分け・スタートホール</h2><p class="hint" style="margin-bottom:10px">名前の修正、組の移動（右の「○組」を変更）、スタートホールの変更ができます。</p>`;
+    h += `<div class="card" id="edGroups"><h2>${mode === 'create' ? '③ ' : ''}組分け・スタートホール</h2><p class="hint" style="margin-bottom:10px">名前の修正、組の移動（右の「○組」を変更）、スタートホール・スタート時間の変更ができます。</p>`;
+    if (ed.groups.length) h += `<div class="tfill" id="tfill"><div class="tfill-t">スタート時間をまとめて入れる</div><div class="row"><label>1組目 <input class="tinp" type="time" data-ed="t0" value="${esc(ed.t0)}" aria-label="1組目のスタート時間"></label><label>間隔 <input class="tinp tstep" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" data-ed="tstep" value="${esc(ed.tstep)}" aria-label="間隔（分）">分</label><button class="btn" data-tfill>全組に入れる</button></div></div>`;
     ed.groups.forEach((g, gi) => {
       const ps = ed.players.filter(p => p.g === g.id);
       h += `<div class="card" style="background:var(--bg2);margin:10px 0" data-gcard="${esc(g.id)}"><div class="ghead"><b>${gi+1}組</b><label style="font-size:13px;color:var(--muted)">スタート <select data-gstart="${esc(g.id)}" aria-label="${gi+1}組のスタートホール">`
-        + Array.from({length:18}, (_, i) => `<option value="${i+1}" ${g.start === i+1 ? 'selected' : ''}>${startLabel(i+1)}</option>`).join('') + `</select></label></div>`;
+        + Array.from({length:18}, (_, i) => `<option value="${i+1}" ${g.start === i+1 ? 'selected' : ''}>${startLabel(i+1)}</option>`).join('') + `</select></label></div>`
+        + `<label class="gtime">スタート時間（任意）<input class="tinp" type="time" data-gtime="${esc(g.id)}" value="${esc(g.t || '')}" aria-label="${gi+1}組のスタート時間"></label>`;
       for (const p of ps){
         h += `<div class="prow"><input class="inp" data-pname="${esc(p.id)}" value="${esc(p.name)}" placeholder="名前" maxlength="30" aria-label="参加者名">`
           + `<select data-pg="${esc(p.id)}" aria-label="組">` + ed.groups.map((x, xi) => `<option value="${esc(x.id)}" ${x.id === g.id ? 'selected' : ''}>${xi+1}組</option>`).join('') + `</select>`
           + `<button class="xbtn" data-pdel="${esc(p.id)}" aria-label="削除">×</button></div>`;
       }
-      if (ps.length === 0) h += `<p class="hint" style="margin:0 0 8px">ほかの組の参加者の「○組」をこの組に変えると、ここへ移動できます。</p><button class="btn danger" data-gdel="${esc(g.id)}">この組を削除</button>`;
+      if (ps.length === 0) h += `<p class="hint" style="margin:0 0 8px">ほかの組の参加者の「○組」をこの組に変えると、ここへ移動できます。</p>`;
+      if (ps.length < 4) h += `<div class="row" style="margin-top:6px"><button class="btn" data-addp="${esc(g.id)}">＋ この組に追加</button>${ps.length === 0 ? `<button class="btn danger" data-gdel="${esc(g.id)}">この組を削除</button>` : ''}</div>`;
       h += `</div>`;
     });
     h += `<button class="btn block" data-addg>＋ 組を追加</button></div>`;
@@ -1173,8 +1239,10 @@ function edHtml(ed, mode){
 /* フォーム操作。構造が変わったら true を返す（再描画が必要） */
 function edInput(e, ed){ const t = e.target;
   if (t.dataset.ed){ ed[t.dataset.ed] = t.value; return; }
+  if (t.dataset.gtime){ const g = ed.groups.find(x => x.id === t.dataset.gtime); if (g) g.t = TIME_RE.test(t.value) ? t.value : ''; return; }
   if (t.dataset.pname){ const p = ed.players.find(x => x.id === t.dataset.pname); if (p) p.name = t.value; } }
 function edChange(e, ed){ const t = e.target;
+  if (t.dataset.gtime){ const g = ed.groups.find(x => x.id === t.dataset.gtime); if (g) g.t = TIME_RE.test(t.value) ? t.value : ''; return false; }
   if (t.dataset.gstart){ const g = ed.groups.find(x => x.id === t.dataset.gstart); if (g) g.start = +t.value; return false; }
   if (t.dataset.pg){ const p = ed.players.find(x => x.id === t.dataset.pg); if (p){ p.g = t.value; ed.players = ed.groups.flatMap(g => ed.players.filter(x => x.g === g.id)); } return true; }
   return false; }
@@ -1184,7 +1252,18 @@ async function edClick(e, ed, hasScores){ const t = e.target; let b;
     if (!ed.bulk.trim()){ await ask('参加者名を1行に1名ずつ入力してください。', 'OK', ''); return false; }
     if (ed.players.length && !(await ask('現在の組分けを消して、名簿から組分けをやり直しますか？', 'やり直す'))) return false;
     edSplit(ed); return true; }
+  if (t.closest('[data-tfill]')){   /* 1組目の時間から、決めた間隔で全組にスタート時間を入れる */
+    const step = /^\d{1,2}$/.test(String(ed.tstep).trim()) ? +ed.tstep : NaN;
+    if (!TIME_RE.test(ed.t0 || '')){ await ask('1組目のスタート時間を入れてください。', 'OK', ''); return false; }
+    if (!(step >= 0 && step <= 60)){ await ask('間隔は 0〜60 の数字（分）で入れてください。', 'OK', ''); return false; }
+    if (ed.groups.some(g => g.t) && !(await ask('入力済みのスタート時間を、まとめて入れ直しますか？', '入れ直す'))) return false;
+    const [hh, mm] = ed.t0.split(':').map(Number);
+    ed.groups.forEach((g, i) => { const m = (hh * 60 + mm + step * i) % 1440; g.t = String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); });
+    return true; }
   if (t.closest('[data-addg]')){ ed.groups.push({id: 'g' + rid(4), start: 1}); return true; }
+  if ((b = t.closest('[data-addp]'))){ /* 3名以下の組に1人追加（名前は空欄で追加し、そこへフォーカス） */
+    const g = ed.groups.find(x => x.id === b.dataset.addp); if (!g || ed.players.filter(p => p.g === g.id).length >= 4) return false;
+    const p = {id: 'p' + rid(6), name: '', g: g.id}; ed.players.push(p); ed.players = ed.groups.flatMap(x => ed.players.filter(y => y.g === x.id)); return 'focus:' + p.id; }
   if ((b = t.closest('[data-gdel]'))){ ed.groups = ed.groups.filter(g => g.id !== b.dataset.gdel); return true; }
   if ((b = t.closest('[data-pdel]'))){ const p = ed.players.find(x => x.id === b.dataset.pdel); if (!p) return false;
     const warn = hasScores && hasScores(p.id) ? `${p.name || 'この参加者'} を削除しますか？\n入力済みのスコアも削除されます（「変更を保存」を押すと確定）。` : (p.name ? `${p.name} を削除しますか？` : '');
@@ -1193,14 +1272,14 @@ async function edClick(e, ed, hasScores){ const t = e.target; let b;
   return false; }
 function edValidate(ed, mode){
   if (!ed.name.trim()) return 'コンペ名を入力してください。';
-  if (!ed.players.length) return mode === 'create' ? '参加者名を入力して「4名ずつ組分けする」を押してください。' : '参加者が1名もいません。';
+  if (!ed.players.length) return mode === 'create' ? '参加者名を入力して「ここをクリックして組み分けする」を押してください。' : '参加者が1名もいません。';
   if (ed.players.some(p => !p.name.trim())) return '名前が空欄の参加者がいます。入力するか、×で削除してください。';
   if (mode === 'create' && ed.pw.length < 6) return '幹事パスワードを6文字以上で入力してください。';
   return ''; }
 function edToPub(ed){
   const groups = {}, players = {};
   const used = ed.groups.filter(g => ed.players.some(p => p.g === g.id));
-  used.forEach((g, i) => groups[g.id] = {n: i + 1, start: g.start});
+  used.forEach((g, i) => groups[g.id] = {n: i + 1, start: g.start, ...(TIME_RE.test(g.t || '') ? {t: g.t} : {})});
   ed.players.forEach((p, i) => players[p.id] = {name: p.name.trim(), g: p.g, o: i + 1});
   return {name: ed.name.trim(), date: ed.date || '', course: ed.course.trim(), pars: ed.pars.join(''), groups, players};
 }
@@ -1347,7 +1426,9 @@ function mountAdmin(el, cid, secFromUrl){
     let h = store.mode === 'demo' ? `<div class="msg warn" id="demoWarn">デモモードのため、下のURLを送っても相手の画面では開けません<small>この端末の中だけで動いています（操作や見た目の確認用）。みんなで使うには、Firebase の接続設定を入れた index.html に差し替えてください。</small></div>` : '';
     h += justCreated && store.mode !== 'demo' ? `<div class="msg ok" id="createdMsg">コンペを作成しました。下のURLをLINEで送れば準備完了です。<small>この管理画面のURLと幹事パスワードは、幹事だけが控えてください。</small></div>` : '';
     h += `<div class="card" id="viewerCard"><h2>順位速報URL（参加者全員に送る）</h2><div class="url" id="viewerUrl">${esc(vUrl)}</div><div class="row"><button class="btn" data-copy="${esc(vUrl)}">コピー</button><a class="btn line" target="_blank" rel="noopener" href="${esc(lineHref(`【${name}】LIVE順位速報はこちら\n${vUrl}`))}">LINEで送る</a><a class="btn" href="#v-${esc(cid)}">開く</a></div></div>`;
-    h += `<div class="card" id="previewCard"><h2>お客様に見える画面を確認する</h2><div class="row"><a class="btn" href="#v-${esc(cid)}">順位速報</a><a class="btn" href="#r-${esc(cid)}">結果発表</a><button class="btn" data-sampleresult>結果発表の見本</button></div><p class="hint" style="margin-top:8px">「結果発表の見本」は、実際の参加者名に仮のスコアをあてはめて、当日の結果発表がどう見えるかを確認できます（幹事にだけ表示。データは保存されません）。</p></div>`;
+    const pUrl = pairUrl(cid);
+    h += `<div class="card" id="pairCard"><h2>組み合わせURL（コンペ前に全員に送る）</h2><div class="url" id="pairUrl">${esc(pUrl)}</div><div class="row"><button class="btn" data-copy="${esc(pUrl)}">コピー</button><a class="btn line" target="_blank" rel="noopener" href="${esc(lineHref(`【${name}】組み合わせはこちら\n${pUrl}`))}">LINEで送る</a><a class="btn" href="#p-${esc(cid)}">開く</a></div><p class="hint" style="margin-top:8px">組ごとのスタート時間・スタートホール・メンバーが見られます。組や時間を変更すると、送った相手の画面にもすぐ反映されます。</p></div>`;
+    h += `<div class="card" id="previewCard"><h2>お客様に見える画面を確認する</h2><div class="row"><a class="btn" href="#p-${esc(cid)}">組み合わせ</a><a class="btn" href="#v-${esc(cid)}">順位速報</a><a class="btn" href="#r-${esc(cid)}">結果発表</a><button class="btn" data-sampleresult>結果発表の見本</button></div><p class="hint" style="margin-top:8px">「結果発表の見本」は、実際の参加者名に仮のスコアをあてはめて、当日の結果発表がどう見えるかを確認できます（幹事にだけ表示。データは保存されません）。</p></div>`;
     h += `<div class="card"><h2>各組の進行状況・入力用URL</h2><p class="hint" style="margin-bottom:6px">入力用URLは、その組の代表者だけに送ってください（その組のスコアだけ入力できます）。</p>`;
     const all = [`【${name}】`, `■ 順位速報（全員）`, vUrl, ''];
     for (const g of sortedGroups(pub)){
