@@ -371,7 +371,7 @@ window.FIREBASE_CONFIG = {
 <!-- ▲▲ 接続設定ここまで ▲▲ -->
 <script type="module">
 /* =====================================================================
-   ゴルフコンペ LIVE順位速報  v1.21.1（ふりがなを細字に／名前欄に入ったふりがなも分けて表示）
+   ゴルフコンペ LIVE順位速報  v1.21.2（ふりがなのまとめ入力で、空白なしの「黒川加奈子クロカワカナコ」も読み取る）
    画面: ホーム(作成) / 順位速報 #v-{コンペID} / 組み合わせ #p-{コンペID} / 結果発表 #r-{コンペID} / スコア入力 #g-{コンペID}-{組ID}-{キー} / 幹事 #a-{コンペID}-{幹事キー}
    ===================================================================== */
 const FB_VER = '10.14.1';
@@ -1196,8 +1196,9 @@ function edFromPub(pub){ return {name: pub.name || '', date: pub.date || '', cou
 /* 「名前　フリガナ」の1行を名前とカタカナのふりがなに分ける。
    末尾がカタカナ（姓 名のように空白入り、または名前との間に空白あり）のときだけ、ふりがなとみなす */
 const KANA_RE = /^(.*?)([\s\u3000]*)([ァ-ヶー]+(?:[\s\u3000]+[ァ-ヶー]+)*)$/;
-function splitKana(line){ const t = String(line).trim(); const m = KANA_RE.exec(t);
-  if (m && m[1].trim() && (m[2] || /[\s\u3000]/.test(m[3]))) return {name: m[1].trim(), k: m[3].replace(/[\s\u3000]+/g, ' ').trim()};
+function splitKana(line, loose){ const t = String(line).trim(); const m = KANA_RE.exec(t);
+  /* loose：ふりがな専用の欄では、末尾のカタカナを（空白がなくても）ふりがなとみなす。名簿では「田中ミカ」のような名前と区別するため空白を条件にする */
+  if (m && m[1].trim() && (loose || m[2] || /[\s\u3000]/.test(m[3]))) return {name: m[1].trim(), k: m[3].replace(/[\s\u3000]+/g, ' ').trim()};
   return {name: t, k: ''}; }
 const normName = n => String(n || '').replace(/[\s\u3000]+/g, '');
 function edSplit(ed){
@@ -1280,7 +1281,7 @@ async function edClick(e, ed, hasScores){ const t = e.target; let b;
     const lines = String(ed.kbulk || '').split(/\r?\n/).map(l => l.trim()).filter(Boolean);
     if (!lines.length){ await ask('「名前　フリガナ」を1行に1名ずつ貼り付けてください。', 'OK', ''); return false; }
     const miss = [], bad = []; let n = 0;
-    for (const line of lines){ const {name, k} = splitKana(line); if (!k){ bad.push(line); continue; }
+    for (const line of lines){ const {name, k} = splitKana(line, true); if (!k){ bad.push(line); continue; }
       const p = ed.players.find(x => normName(x.name) === normName(name)); if (p){ p.k = k; n++; } else miss.push(name); }
     let msg = `${n}名にふりがなを入れました。`; if (miss.length) msg += `\n\n参加者にいない名前：${miss.join('、')}`; if (bad.length) msg += `\n\nふりがなが読み取れなかった行：${bad.join('、')}`;
     msg += '\n\n下の「変更を保存」を押すと確定します。'; await ask(msg, 'OK', ''); return true; }
