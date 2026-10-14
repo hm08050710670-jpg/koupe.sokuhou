@@ -160,7 +160,8 @@ textarea.inp{min-height:180px;line-height:1.6}
 .pgc-h .pgs{margin-left:auto;font-size:12px;font-weight:700;color:var(--main);background:#E9CF8E;border-radius:999px;padding:3px 10px;white-space:nowrap}
 .pgc-n{display:grid;grid-template-columns:1fr 1fr;font-size:17px;font-weight:600}
 .pgc-n > .pgp{padding:11px 14px;border-top:1px solid var(--line);min-width:0;word-break:break-word}
-.pgp .kana{display:block;font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.02em;margin-top:2px;line-height:1.2}
+.pgp .kana{display:block;font-size:11px;font-weight:300;color:var(--muted);letter-spacing:0;margin-top:3px;line-height:1.25;word-break:break-word;overflow-wrap:anywhere}
+@media (max-width:359px){.pgp .kana{font-size:10px}}
 .pgc-n > .pgp:nth-child(-n+2){border-top:0}
 .pgc-n > .pgp:nth-child(odd){border-right:1px solid var(--line)}
 @media (max-width:359px){.pgc-h{padding:8px 10px;gap:7px} .pgc-h b,.pgc-h .pgt{font-size:17px} .pgc-h .pgs{font-size:11px;padding:3px 8px} .pgc-n{font-size:16px} .pgc-n > .pgp{padding:10px}}
@@ -370,7 +371,7 @@ window.FIREBASE_CONFIG = {
 <!-- ▲▲ 接続設定ここまで ▲▲ -->
 <script type="module">
 /* =====================================================================
-   ゴルフコンペ LIVE順位速報  v1.21.0（組み合わせにカタカナのふりがな／ふりがなのまとめ入力）
+   ゴルフコンペ LIVE順位速報  v1.21.1（ふりがなを細字に／名前欄に入ったふりがなも分けて表示）
    画面: ホーム(作成) / 順位速報 #v-{コンペID} / 組み合わせ #p-{コンペID} / 結果発表 #r-{コンペID} / スコア入力 #g-{コンペID}-{組ID}-{キー} / 幹事 #a-{コンペID}-{幹事キー}
    ===================================================================== */
 const FB_VER = '10.14.1';
@@ -465,7 +466,9 @@ const startPill = s => s === 1 ? 'OUT　1番スタート' : s === 10 ? 'IN　10�
 function sortedGroups(pub){ return Object.entries((pub && pub.groups) || {}).map(([id,g]) => ({id, n:+g.n || 0, start:+g.start || 1, t: typeof g.t === 'string' && TIME_RE.test(g.t) ? g.t : ''})).sort((a,b) => a.n - b.n); }
 function sortedPlayers(pub, gid){
   const gn = Object.fromEntries(sortedGroups(pub).map(g => [g.id, g.n]));
-  return Object.entries((pub && pub.players) || {}).map(([id,p]) => ({id, name:p.name, k: typeof p.k === 'string' ? p.k : '', g:p.g, o:+p.o || 0, gn: gn[p.g] || 0}))
+  return Object.entries((pub && pub.players) || {}).map(([id,p]) => { let name = p.name, k = typeof p.k === 'string' ? p.k : '';
+      if (!k){ const sp = splitKana(name); if (sp.k){ name = sp.name; k = sp.k; } }   /* 名前の欄に「名前 フリガナ」と入っている場合も、名前とふりがなに分けて扱う */
+      return {id, name, k, g:p.g, o:+p.o || 0, gn: gn[p.g] || 0}; })
     .filter(p => !gid || p.g === gid).sort((a,b) => a.gn - b.gn || a.o - b.o);
 }
 /* 未入力ホールは計算に含めない（0打扱いにしない） */
