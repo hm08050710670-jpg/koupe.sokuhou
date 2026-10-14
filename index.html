@@ -160,6 +160,7 @@ textarea.inp{min-height:180px;line-height:1.6}
 .pgc-h .pgs{margin-left:auto;font-size:12px;font-weight:700;color:var(--main);background:#E9CF8E;border-radius:999px;padding:3px 10px;white-space:nowrap}
 .pgc-n{display:grid;grid-template-columns:1fr 1fr;font-size:17px;font-weight:600}
 .pgc-n > .pgp{padding:11px 14px;border-top:1px solid var(--line);min-width:0;word-break:break-word}
+.pgp .kana{display:block;font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.02em;margin-top:2px;line-height:1.2}
 .pgc-n > .pgp:nth-child(-n+2){border-top:0}
 .pgc-n > .pgp:nth-child(odd){border-right:1px solid var(--line)}
 @media (max-width:359px){.pgc-h{padding:8px 10px;gap:7px} .pgc-h b,.pgc-h .pgt{font-size:17px} .pgc-h .pgs{font-size:11px;padding:3px 8px} .pgc-n{font-size:16px} .pgc-n > .pgp{padding:10px}}
@@ -231,6 +232,9 @@ textarea.inp{min-height:180px;line-height:1.6}
 .tfill .row{gap:8px 10px} .tfill label{font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
 .tfill .tstep{width:54px}
 .prow .inp{flex:1 1 auto;min-width:0}
+.prow .pcol{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:4px}
+.prow .kin{min-height:36px;font-size:14px;padding:4px 10px}
+.prow{align-items:stretch} .prow select,.prow .xbtn{align-self:center}
 .prow select{flex:none;width:84px}
 .xbtn{flex:none;width:44px;height:44px;border-radius:10px;border:1px solid #E8C4C0;background:#fff;color:var(--red);font-size:20px;font-weight:700;padding:0}
 .pars{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin:4px 0 10px}
@@ -366,7 +370,7 @@ window.FIREBASE_CONFIG = {
 <!-- ▲▲ 接続設定ここまで ▲▲ -->
 <script type="module">
 /* =====================================================================
-   ゴルフコンペ LIVE順位速報  v1.20.0（組み合わせページ＋URLを追加／3名以下の組に「＋ この組に追加」）
+   ゴルフコンペ LIVE順位速報  v1.21.0（組み合わせにカタカナのふりがな／ふりがなのまとめ入力）
    画面: ホーム(作成) / 順位速報 #v-{コンペID} / 組み合わせ #p-{コンペID} / 結果発表 #r-{コンペID} / スコア入力 #g-{コンペID}-{組ID}-{キー} / 幹事 #a-{コンペID}-{幹事キー}
    ===================================================================== */
 const FB_VER = '10.14.1';
@@ -461,7 +465,7 @@ const startPill = s => s === 1 ? 'OUT　1番スタート' : s === 10 ? 'IN　10�
 function sortedGroups(pub){ return Object.entries((pub && pub.groups) || {}).map(([id,g]) => ({id, n:+g.n || 0, start:+g.start || 1, t: typeof g.t === 'string' && TIME_RE.test(g.t) ? g.t : ''})).sort((a,b) => a.n - b.n); }
 function sortedPlayers(pub, gid){
   const gn = Object.fromEntries(sortedGroups(pub).map(g => [g.id, g.n]));
-  return Object.entries((pub && pub.players) || {}).map(([id,p]) => ({id, name:p.name, g:p.g, o:+p.o || 0, gn: gn[p.g] || 0}))
+  return Object.entries((pub && pub.players) || {}).map(([id,p]) => ({id, name:p.name, k: typeof p.k === 'string' ? p.k : '', g:p.g, o:+p.o || 0, gn: gn[p.g] || 0}))
     .filter(p => !gid || p.g === gid).sort((a,b) => a.gn - b.gn || a.o - b.o);
 }
 /* 未入力ホールは計算に含めない（0打扱いにしない） */
@@ -849,7 +853,7 @@ function pairingCardsHtml(pub, players){   /* players: 表示する参加者（�
   const ps = players || sortedPlayers(pub); let h = '';
   for (const g of sortedGroups(pub)){ const m = ps.filter(p => p.g === g.id); if (!m.length) continue;
     h += `<div class="pgc" data-pgc="${esc(g.id)}"><div class="pgc-h"><b>${g.n}組</b>${g.t ? `<span class="pgt num">${fmtTee(g.t)}</span>` : ''}<span class="pgs">${startPill(g.start)}</span></div><div class="pgc-n">`
-      + m.map(p => `<span class="pgp" data-pid="${esc(p.id)}" data-holes="0">${nm(p.name)}</span>`).join('') + `</div></div>`; }
+      + m.map(p => `<span class="pgp" data-pid="${esc(p.id)}" data-holes="0">${nm(p.name)}${p.k ? `<small class="kana">${esc(p.k)}</small>` : ''}</span>`).join('') + `</div></div>`; }
   return h;
 }
 function mountPairing(el, cid){
@@ -1183,15 +1187,22 @@ function mountRep(el, cid, gid, key){
 /* =====================================================================
    コンペ情報の編集フォーム（作成・設定で共用）
    ===================================================================== */
-function newEd(){ return {name:'', date: todayStr(), course:'', pars:[...DEFAULT_PARS], groups:[], players:[], bulk:'', pw:'', t0:'09:09', tstep:'8'}; }
+function newEd(){ return {name:'', date: todayStr(), course:'', pars:[...DEFAULT_PARS], groups:[], players:[], bulk:'', pw:'', t0:'09:09', tstep:'8', kbulk:''}; }
 function edFromPub(pub){ return {name: pub.name || '', date: pub.date || '', course: pub.course || '', pars: parsOf(pub),
-  groups: sortedGroups(pub).map(g => ({id:g.id, start:g.start, t:g.t})), players: sortedPlayers(pub).map(p => ({id:p.id, name:p.name, g:p.g})), bulk:'', pw:'', t0:'09:09', tstep:'8'}; }
+  groups: sortedGroups(pub).map(g => ({id:g.id, start:g.start, t:g.t})), players: sortedPlayers(pub).map(p => ({id:p.id, name:p.name, k:p.k, g:p.g})), bulk:'', pw:'', t0:'09:09', tstep:'8', kbulk:''}; }
+/* 「名前　フリガナ」の1行を名前とカタカナのふりがなに分ける。
+   末尾がカタカナ（姓 名のように空白入り、または名前との間に空白あり）のときだけ、ふりがなとみなす */
+const KANA_RE = /^(.*?)([\s\u3000]*)([ァ-ヶー]+(?:[\s\u3000]+[ァ-ヶー]+)*)$/;
+function splitKana(line){ const t = String(line).trim(); const m = KANA_RE.exec(t);
+  if (m && m[1].trim() && (m[2] || /[\s\u3000]/.test(m[3]))) return {name: m[1].trim(), k: m[3].replace(/[\s\u3000]+/g, ' ').trim()};
+  return {name: t, k: ''}; }
+const normName = n => String(n || '').replace(/[\s\u3000]+/g, '');
 function edSplit(ed){
   /* 空行（スペースだけの行も含む）があれば、そこで組を区切る。区切りの中は上から4名ずつ。空行がなければ全体を上から4名ずつ */
   const blocks = [[]];
   for (const raw of ed.bulk.split(/\r?\n/)){ const name = raw.trim(); if (name) blocks[blocks.length-1].push(name); else if (blocks[blocks.length-1].length) blocks.push([]); }
   ed.groups = []; ed.players = [];
-  for (const names of blocks) names.forEach((name, i) => { if (i % 4 === 0) ed.groups.push({id: 'g' + rid(4), start: 1}); ed.players.push({id: 'p' + rid(6), name, g: ed.groups[ed.groups.length-1].id}); });
+  for (const names of blocks) names.forEach((line, i) => { if (i % 4 === 0) ed.groups.push({id: 'g' + rid(4), start: 1}); const {name, k} = splitKana(line); ed.players.push({id: 'p' + rid(6), name, k, g: ed.groups[ed.groups.length-1].id}); });
 }
 function edHtml(ed, mode){
   const sum = a => a.reduce((x,y) => x + y, 0);
@@ -1202,11 +1213,12 @@ function edHtml(ed, mode){
   if (mode === 'create'){
     h += `<div class="card"><h2>② 参加者</h2><div class="field"><label for="edBulk">参加者名（1行に1名）</label>
       <textarea class="inp" id="edBulk" data-ed="bulk" placeholder="田中 健一&#10;佐藤 大輔&#10;鈴木 拓也&#10;山田 翔太&#10;…">${esc(ed.bulk)}</textarea>
-      <p class="hint">フルネームで入力すると、順位表・結果発表・成績表にそのまま表示されます。LINEなどの名簿をそのまま貼り付けできます。上から4名ずつ組に分けます。空行を入れると、そこで組を区切ります（あとで自由に変更できます）。</p></div>
+      <p class="hint">フルネームで入力すると、順位表・結果発表・成績表にそのまま表示されます。LINEなどの名簿をそのまま貼り付けできます。上から4名ずつ組に分けます。空行を入れると、そこで組を区切ります（あとで自由に変更できます）。<br>名前のあとにカタカナを書くと（例：田中 健一　タナカ ケンイチ）、組み合わせにふりがなとして表示されます。</p></div>
       <button class="btn block${ed.players.length ? '' : ' splitgo'}" data-split>${ed.players.length ? '名簿から組分けをやり直す' : 'ここをクリックして組み分けする'}</button></div>`;
   }
   if (mode !== 'create' || ed.players.length){
     h += `<div class="card" id="edGroups"><h2>${mode === 'create' ? '③ ' : ''}組分け・スタートホール</h2><p class="hint" style="margin-bottom:10px">名前の修正、組の移動（右の「○組」を変更）、スタートホール・スタート時間の変更ができます。</p>`;
+    if (mode !== 'create' && ed.players.length) h += `<div class="tfill" id="kfill"><div class="tfill-t">ふりがなをまとめて入れる</div><textarea class="inp" data-ed="kbulk" rows="3" placeholder="田中 健一　タナカ ケンイチ&#10;佐藤 大輔　サトウ ダイスケ&#10;…（1行に1名。名前が一致した人に入ります）">${esc(ed.kbulk || '')}</textarea><button class="btn" data-kfill style="margin-top:8px">名前に当てはめる</button></div>`;
     if (ed.groups.length) h += `<div class="tfill" id="tfill"><div class="tfill-t">スタート時間をまとめて入れる</div><div class="row"><label>1組目 <input class="tinp" type="time" data-ed="t0" value="${esc(ed.t0)}" aria-label="1組目のスタート時間"></label><label>間隔 <input class="tinp tstep" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" data-ed="tstep" value="${esc(ed.tstep)}" aria-label="間隔（分）">分</label><button class="btn" data-tfill>全組に入れる</button></div></div>`;
     ed.groups.forEach((g, gi) => {
       const ps = ed.players.filter(p => p.g === g.id);
@@ -1214,7 +1226,7 @@ function edHtml(ed, mode){
         + Array.from({length:18}, (_, i) => `<option value="${i+1}" ${g.start === i+1 ? 'selected' : ''}>${startLabel(i+1)}</option>`).join('') + `</select></label></div>`
         + `<label class="gtime">スタート時間（任意）<input class="tinp" type="time" data-gtime="${esc(g.id)}" value="${esc(g.t || '')}" aria-label="${gi+1}組のスタート時間"></label>`;
       for (const p of ps){
-        h += `<div class="prow"><input class="inp" data-pname="${esc(p.id)}" value="${esc(p.name)}" placeholder="名前" maxlength="30" aria-label="参加者名">`
+        h += `<div class="prow"><div class="pcol"><input class="inp" data-pname="${esc(p.id)}" value="${esc(p.name)}" placeholder="名前" maxlength="30" aria-label="参加者名"><input class="inp kin" data-pkana="${esc(p.id)}" value="${esc(p.k || '')}" placeholder="ふりがな（カタカナ）" maxlength="40" aria-label="${esc(p.name)} のふりがな"></div>`
           + `<select data-pg="${esc(p.id)}" aria-label="組">` + ed.groups.map((x, xi) => `<option value="${esc(x.id)}" ${x.id === g.id ? 'selected' : ''}>${xi+1}組</option>`).join('') + `</select>`
           + `<button class="xbtn" data-pdel="${esc(p.id)}" aria-label="削除">×</button></div>`;
       }
@@ -1240,7 +1252,8 @@ function edHtml(ed, mode){
 function edInput(e, ed){ const t = e.target;
   if (t.dataset.ed){ ed[t.dataset.ed] = t.value; return; }
   if (t.dataset.gtime){ const g = ed.groups.find(x => x.id === t.dataset.gtime); if (g) g.t = TIME_RE.test(t.value) ? t.value : ''; return; }
-  if (t.dataset.pname){ const p = ed.players.find(x => x.id === t.dataset.pname); if (p) p.name = t.value; } }
+  if (t.dataset.pname){ const p = ed.players.find(x => x.id === t.dataset.pname); if (p) p.name = t.value; }
+  if (t.dataset.pkana){ const p = ed.players.find(x => x.id === t.dataset.pkana); if (p) p.k = t.value; } }
 function edChange(e, ed){ const t = e.target;
   if (t.dataset.gtime){ const g = ed.groups.find(x => x.id === t.dataset.gtime); if (g) g.t = TIME_RE.test(t.value) ? t.value : ''; return false; }
   if (t.dataset.gstart){ const g = ed.groups.find(x => x.id === t.dataset.gstart); if (g) g.start = +t.value; return false; }
@@ -1260,10 +1273,18 @@ async function edClick(e, ed, hasScores){ const t = e.target; let b;
     const [hh, mm] = ed.t0.split(':').map(Number);
     ed.groups.forEach((g, i) => { const m = (hh * 60 + mm + step * i) % 1440; g.t = String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); });
     return true; }
+  if (t.closest('[data-kfill]')){ /* 「名前　フリガナ」の一覧を、名前が一致する参加者に当てはめる */
+    const lines = String(ed.kbulk || '').split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    if (!lines.length){ await ask('「名前　フリガナ」を1行に1名ずつ貼り付けてください。', 'OK', ''); return false; }
+    const miss = [], bad = []; let n = 0;
+    for (const line of lines){ const {name, k} = splitKana(line); if (!k){ bad.push(line); continue; }
+      const p = ed.players.find(x => normName(x.name) === normName(name)); if (p){ p.k = k; n++; } else miss.push(name); }
+    let msg = `${n}名にふりがなを入れました。`; if (miss.length) msg += `\n\n参加者にいない名前：${miss.join('、')}`; if (bad.length) msg += `\n\nふりがなが読み取れなかった行：${bad.join('、')}`;
+    msg += '\n\n下の「変更を保存」を押すと確定します。'; await ask(msg, 'OK', ''); return true; }
   if (t.closest('[data-addg]')){ ed.groups.push({id: 'g' + rid(4), start: 1}); return true; }
   if ((b = t.closest('[data-addp]'))){ /* 3名以下の組に1人追加（名前は空欄で追加し、そこへフォーカス） */
     const g = ed.groups.find(x => x.id === b.dataset.addp); if (!g || ed.players.filter(p => p.g === g.id).length >= 4) return false;
-    const p = {id: 'p' + rid(6), name: '', g: g.id}; ed.players.push(p); ed.players = ed.groups.flatMap(x => ed.players.filter(y => y.g === x.id)); return 'focus:' + p.id; }
+    const p = {id: 'p' + rid(6), name: '', k: '', g: g.id}; ed.players.push(p); ed.players = ed.groups.flatMap(x => ed.players.filter(y => y.g === x.id)); return 'focus:' + p.id; }
   if ((b = t.closest('[data-gdel]'))){ ed.groups = ed.groups.filter(g => g.id !== b.dataset.gdel); return true; }
   if ((b = t.closest('[data-pdel]'))){ const p = ed.players.find(x => x.id === b.dataset.pdel); if (!p) return false;
     const warn = hasScores && hasScores(p.id) ? `${p.name || 'この参加者'} を削除しますか？\n入力済みのスコアも削除されます（「変更を保存」を押すと確定）。` : (p.name ? `${p.name} を削除しますか？` : '');
@@ -1280,7 +1301,7 @@ function edToPub(ed){
   const groups = {}, players = {};
   const used = ed.groups.filter(g => ed.players.some(p => p.g === g.id));
   used.forEach((g, i) => groups[g.id] = {n: i + 1, start: g.start, ...(TIME_RE.test(g.t || '') ? {t: g.t} : {})});
-  ed.players.forEach((p, i) => players[p.id] = {name: p.name.trim(), g: p.g, o: i + 1});
+  ed.players.forEach((p, i) => { const k = String(p.k || '').replace(/[\s\u3000]+/g, ' ').trim().slice(0, 40); players[p.id] = {name: p.name.trim(), g: p.g, o: i + 1, ...(k ? {k} : {})}; });
   return {name: ed.name.trim(), date: ed.date || '', course: ed.course.trim(), pars: ed.pars.join(''), groups, players};
 }
 
