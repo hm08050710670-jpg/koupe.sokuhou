@@ -371,7 +371,7 @@ window.FIREBASE_CONFIG = {
 <!-- ▲▲ 接続設定ここまで ▲▲ -->
 <script type="module">
 /* =====================================================================
-   ゴルフコンペ LIVE順位速報  v1.21.2（ふりがなのまとめ入力で、空白なしの「黒川加奈子クロカワカナコ」も読み取る）
+   ゴルフコンペ LIVE順位速報  v1.22.0（幹事の「最終順位」の表を順位順に並べる）
    画面: ホーム(作成) / 順位速報 #v-{コンペID} / 組み合わせ #p-{コンペID} / 結果発表 #r-{コンペID} / スコア入力 #g-{コンペID}-{組ID}-{キー} / 幹事 #a-{コンペID}-{幹事キー}
    ===================================================================== */
 const FB_VER = '10.14.1';
@@ -1515,7 +1515,10 @@ function mountAdmin(el, cid, secFromUrl){
       <p class="hint">HDCP ＝（隠しホールの合計 × ${mult} − コースのPAR ${parTotal}）× 0.8　／　NET ＝ グロス − HDCP</p>
       <button class="btn primary block" id="calcPeoria" style="margin-top:12px">この設定で新ペリアを計算する</button></div>`;
     h += `<div class="card" id="rankCard"><h2>最終順位</h2>${calcMsg ? `<div class="msg ${calcMsg.kind}" id="calcMsg">${esc(calcMsg.text)}</div>` : ''}<p class="hint" style="margin-bottom:8px">計算結果がここに入ります。手で直すこともできます（ゴルフ場の集計結果を入力する場合も、ここに入力します）。順位は必須、HDCP・NETは任意です。</p><div class="frow h"><span>名前（グロス）</span><span class="center">順位</span><span class="center">HDCP</span><span class="center">NET</span></div>`;
-    for (const p of sortedPlayers(pub)){ const r = fin.rows[p.id] || {rank:'', hc:'', net:''}; const gr = gross[p.id];
+    /* 順位が入っている人を順位の小さい順に並べ、順位のない人はそのあとに名簿順で続ける（並び替えは画面を描き直したときだけ。入力中には動かさない） */
+    const rk = p => { const v = parseInt((fin.rows[p.id] || {}).rank, 10); return v > 0 ? v : Infinity; };
+    const ordered = sortedPlayers(pub).map((p, i) => ({p, i})).sort((a, b) => rk(a.p) - rk(b.p) || a.i - b.i).map(x => x.p);
+    for (const p of ordered){ const r = fin.rows[p.id] || {rank:'', hc:'', net:''}; const gr = gross[p.id];
       h += `<div class="frow"><span><b>${esc(p.name)}</b> <span class="hint">${gr && gr.holes === 18 ? gr.strokes : '–'}</span></span>`
         + `<input class="inp num" data-frank="${esc(p.id)}" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="${esc(r.rank)}" aria-label="${esc(p.name)} の順位">`
         + `<input class="inp num" data-fhc="${esc(p.id)}" type="text" inputmode="decimal" maxlength="6" value="${esc(r.hc)}" aria-label="${esc(p.name)} のHDCP">`

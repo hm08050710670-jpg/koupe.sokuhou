@@ -10,7 +10,7 @@
 - 公開 URL: https://hm08050710670-jpg.github.io/koupe.sokuhou/
 - GitHub: https://github.com/hm08050710670-jpg/koupe.sokuhou （GitHub Pages。`index.html` 1ファイルだけ）
 - データ: Firebase Realtime Database（プロジェクト `golf-guts-258ae`、asia-southeast1）＋ 匿名認証。設定値は `index.html` の `<script id="fbconfig">` に埋め込み済み（公開して問題ない値）。
-- 現在のバージョン: v1.21.2（`index.html` 内のコメント行「ゴルフコンペ LIVE順位速報  vX.Y.Z（…）」で管理）。
+- 現在のバージョン: v1.22.0（`index.html` 内のコメント行「ゴルフコンペ LIVE順位速報  vX.Y.Z（…）」で管理）。
 
 ## 2. 絶対に守ること（発注者の確定事項）
 
