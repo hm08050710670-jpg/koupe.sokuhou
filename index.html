@@ -371,7 +371,7 @@ window.FIREBASE_CONFIG = {
 <!-- ▲▲ 接続設定ここまで ▲▲ -->
 <script type="module">
 /* =====================================================================
-   ゴルフコンペ LIVE順位速報  v1.22.0（幹事の「最終順位」の表を順位順に並べる）
+   ゴルフコンペ LIVE順位速報  v1.22.1（結果発表をスクロールしたときに上位3名の大きさが変わってカクつく不具合を修正）
    画面: ホーム(作成) / 順位速報 #v-{コンペID} / 組み合わせ #p-{コンペID} / 結果発表 #r-{コンペID} / スコア入力 #g-{コンペID}-{組ID}-{キー} / 幹事 #a-{コンペID}-{幹事キー}
    ===================================================================== */
 const FB_VER = '10.14.1';
@@ -689,7 +689,8 @@ function fitFirstView(root){
   app.style.setProperty('--rk', '1');
   const pods = root.querySelectorAll('.pod'); const last3 = pods.length ? pods[pods.length - 1] : root.querySelector('#champ'); if (!last3) return;
   const next = root.querySelector('#resList .lbr') || root.querySelector('.awards');
-  const vh = window.innerHeight, y = n => n.getBoundingClientRect(), sy = window.scrollY;
+  if (!fitFirstView.vh || fitFirstView.w !== window.innerWidth){ fitFirstView.vh = window.innerHeight; fitFirstView.w = window.innerWidth; }   /* 高さは最初に開いたときの値で固定（バーの出入りで変わらないように） */
+  const vh = fitFirstView.vh, y = n => n.getBoundingClientRect(), sy = window.scrollY;
   const okPeek = () => !next || y(next).top + sy <= vh - 34, okTop3 = () => y(last3).bottom + sy <= vh - 10;
   const tryGoal = (ok, min) => { for (let k = 100; k >= min; k -= 2){ app.style.setProperty('--rk', String(k / 100)); if (ok()) return true; } return false; };
   if (tryGoal(okPeek, 80)) return;
@@ -900,6 +901,7 @@ function makeSampleResult(pub, cid){
    結果発表（公開後は誰でも見られる。印刷するとA4の成績表になる）
    ===================================================================== */
 function mountResult(el, cid, wantSample){
+  fitFirstView.vh = 0;   /* 結果発表を開くたびに、そのときの画面の高さで収め直す */
   el.dataset.screen = 'result';
   const tok = routeTok; const alive = () => tok === routeTok;
   let pub, scores = {}, got = false, failed = false, privFinal = null;
@@ -974,7 +976,9 @@ function mountResult(el, cid, wantSample){
     if (sample === 'check') sample = admin;   /* 幹事でなければ、通常の結果発表を表示する */
     render();
   })();
-  let rsT = 0; const onResize = () => { clearTimeout(rsT); rsT = setTimeout(() => { if (alive()) render(); }, 150); }; window.addEventListener('resize', onResize);
+  /* スクロールでブラウザのバー（LINE・Safari）が出入りすると高さだけが変わって resize が起きる。
+     そのたびに描き直すと上位3名の大きさが変わってカクつくので、横幅が変わったとき（画面の回転など）だけ描き直す */
+  let rsT = 0, lastW = window.innerWidth; const onResize = () => { if (window.innerWidth === lastW) return; lastW = window.innerWidth; clearTimeout(rsT); rsT = setTimeout(() => { if (alive()) render(); }, 150); }; window.addEventListener('resize', onResize);
   el.onclick = e => { if (e.target.closest('#printBtn')){ try{ window.print(); }catch(x){ toast('この画面では印刷を開けません。Safari／Chromeで開き直してください'); } } };
   render();
   return () => { offs.forEach(f => f()); window.removeEventListener('resize', onResize); clearTimeout(rsT); app.style.removeProperty('--rk'); };

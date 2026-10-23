@@ -10,7 +10,7 @@
 - 公開 URL: https://hm08050710670-jpg.github.io/koupe.sokuhou/
 - GitHub: https://github.com/hm08050710670-jpg/koupe.sokuhou （GitHub Pages。`index.html` 1ファイルだけ）
 - データ: Firebase Realtime Database（プロジェクト `golf-guts-258ae`、asia-southeast1）＋ 匿名認証。設定値は `index.html` の `<script id="fbconfig">` に埋め込み済み（公開して問題ない値）。
-- 現在のバージョン: v1.22.0（`index.html` 内のコメント行「ゴルフコンペ LIVE順位速報  vX.Y.Z（…）」で管理）。
+- 現在のバージョン: v1.22.1（`index.html` 内のコメント行「ゴルフコンペ LIVE順位速報  vX.Y.Z（…）」で管理）。
 
 ## 2. 絶対に守ること（発注者の確定事項）
 
@@ -81,6 +81,7 @@ comps/{cid}/members/{uid}  {g, k}  代表者の端末登録（k が groupKeys[g]
 - 順位表のアニメーションは `#board` 上端からの相対位置で比べる（オフライン帯の出入りで全行が動いた不具合）。
 - CSS クラス名の衝突に注意（`live` → `inplay` に改名した経緯あり）。`.award span` のような広い指定は `.nw` を巻き込む。
 - iPhone の `type="time"` / `type="date"` 入力欄は幅が広がりやすい。固定幅・`flex:none` で枠内に収める。
+- 結果発表は高さだけの resize（LINE・Safari のバーの出入り）では描き直さない。描き直すと上位3名の大きさが変わってカクつく（v1.22.1）。
 - 「全体のバランスが見えなくなる」注記は上に置かず、スタンプにする（見本表示の経緯）。
 - 一時的に 2 台で同時に入力できなくなった報告があったが再現せず（通信か Firebase 側の可能性）。同様の報告があれば、その場の画面キャプチャと時刻を聞く。
 - 動画・画像の掲載は未実装。やるなら YouTube 限定公開 URL＋縮小した写真で、Cloud Storage（Blaze 必須）は使わない方針。
